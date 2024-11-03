@@ -1,37 +1,42 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { useFonts } from 'expo-font';
-import { Stack } from 'expo-router';
-import * as SplashScreen from 'expo-splash-screen';
+import { AuthContextProvider } from '@/state/AuthContext';
+import { useAuth } from '@/state/AuthContext';
+import { Stack, useNavigation } from 'expo-router';
+import { Provider } from 'react-redux';
+import store from '../store';
+import { TabProvider } from '@/components/helpers/TabContext';
 import { useEffect } from 'react';
-import 'react-native-reanimated';
-
-import { useColorScheme } from '@/hooks/useColorScheme';
-
-// Prevent the splash screen from auto-hiding before asset loading is complete.
-SplashScreen.preventAutoHideAsync();
-
 export default function RootLayout() {
-  const colorScheme = useColorScheme();
-  const [loaded] = useFonts({
-    SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
-  });
+  return (
+    <Provider store={store}>
+      <AuthContextProvider>
+        <TabProvider>
+          <LayoutWithAuth />
+        </TabProvider>
+      </AuthContextProvider>
+    </Provider>
+  );
+}
+
+function LayoutWithAuth() {
+  const { isLoggedIn } = useAuth();
+  const navigation: any = useNavigation();
 
   useEffect(() => {
-    if (loaded) {
-      SplashScreen.hideAsync();
+    if (isLoggedIn) {
+      navigation.navigate('home');
     }
-  }, [loaded]);
-
-  if (!loaded) {
-    return null;
-  }
-
+  }, [isLoggedIn]);
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="+not-found" />
-      </Stack>
-    </ThemeProvider>
+    <Stack screenOptions={{ headerShown: false }}>
+      {!isLoggedIn ? (
+        <Stack.Screen name='auth/login' />
+      ) : (
+        <>
+          <Stack.Screen name='/home' />
+          {/* <Stack.Screen name='employee/index' /> 
+          <Stack.Screen name='employee/new' /> */}
+        </>
+      )}
+    </Stack>
   );
 }
