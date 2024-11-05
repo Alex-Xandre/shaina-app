@@ -87,7 +87,7 @@ const Login = () => {
       />
 
       <View style={styles.linkContainer}>
-        <TouchableOpacity>
+        <TouchableOpacity onPress={() => navigation.navigate('auth/register')}>
           <ThemedText style={styles.linkText}>Signup</ThemedText>
         </TouchableOpacity>
         <TouchableOpacity>
@@ -98,6 +98,11 @@ const Login = () => {
       <Button
         text='Login'
         onClick={handleLogin}
+      />
+      <Button
+        text='Back to Home'
+        customStyle={{ marginTop: 20 }}
+        onClick={() => navigation.navigate('index')}
       />
     </ThemedView>
   );

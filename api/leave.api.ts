@@ -4,18 +4,18 @@ import { API_ENDPOINT } from '@/config/API';
 import { USER_API } from '@/config/API_BEARER';
 import { handleError } from '@/config/API_ERROR';
 
-export const registerTasks = async (data: any) => {
+export const registerLeave = async (data: any) => {
   try {
-    const response = await USER_API.post(`${API_ENDPOINT}/api/shift/create`, data);
+    const response = await USER_API.post(`${API_ENDPOINT}/api/leave/create`, data);
     return response.data;
   } catch (error) {
     return handleError(error);
   }
 };
 
-export const getTasks = async () => {
+export const getLeave = async () => {
   try {
-    const response = await USER_API.get(`${API_ENDPOINT}/api/shift/:id`);
+    const response = await USER_API.get(`${API_ENDPOINT}/api/leave/:id`);
     return response.data;
   } catch (error) {
     return handleError(error);

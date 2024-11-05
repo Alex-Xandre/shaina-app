@@ -68,6 +68,11 @@ const NewEmployee = () => {
       }
     }
   }, [data]);
+
+  const { user } = useAuth();
+  useEffect(() => {
+    setFormData(user);
+  }, []);
   const handleChange = (name: string, value: string) => {
     setFormData((prevFormData) => ({
       ...prevFormData,
@@ -118,7 +123,7 @@ const NewEmployee = () => {
       <View style={Container as any}>
         <View style={styles.content}>
           <View style={styles.header}>
-            <Text style={styles.headerText}> New Employee</Text>
+            <Text style={styles.headerText}> {user.role === 'user' ? 'Profile' : 'New Employee'}</Text>
           </View>
 
           <ScrollView style={styles.form}>
@@ -131,7 +136,11 @@ const NewEmployee = () => {
               }}
             >
               <Image
-                source={{ uri: formData.avatar }}
+                source={{
+                  uri: formData.avatar
+                    ? formData.avatar
+                    : 'https://res.cloudinary.com/dyhsose70/image/upload/v1696562163/avatar_ko5htr.png',
+                }}
                 style={styles.avatar}
               />
               <input
@@ -145,6 +154,7 @@ const NewEmployee = () => {
             <View style={{ width: '100%', marginBottom: 80, position: 'relative', zIndex: 10000 }}>
               <Dropdown
                 label='Account Access'
+                disabled={user.role === 'user'}
                 value={formData.role}
                 options={[
                   { value: 'user', label: 'Employee' },
@@ -162,6 +172,7 @@ const NewEmployee = () => {
                     <Dropdown
                       label='Rank'
                       value={formData.rank}
+                      disabled={user.role === 'user'}
                       options={policeRanks.map((item) => ({
                         label: item.rank,
                         value: item.abbreviation,
@@ -175,6 +186,7 @@ const NewEmployee = () => {
                 <Input
                   style={styles.input}
                   key={frm.name}
+                  readOnly={user.role === 'user'}
                   label={frm.label}
                   placeholder={frm.placeholder}
                   onChangeText={(value) => handleChange(frm.name, value)}
@@ -183,14 +195,16 @@ const NewEmployee = () => {
               );
             })}
 
-            <Text style={styles.note}>
-              Note: Passwords are auto-generated and will be emailed to the access email - Password Format is
-              (LastName_FirstName-Birth Year) e.g. Juan_Delacruz-2024
-            </Text>
-
+            {user.role !== 'user' && (
+              <Text style={styles.note}>
+                Note: Passwords are auto-generated and will be emailed to the access email - Password Format is
+                (LastName_FirstName-Birth Year) e.g. Juan_Delacruz-2024
+              </Text>
+            )}
             <Button
-              text={data ? 'Update' : 'New'}
+              text={user.role === 'user' ? 'Save Changes' : data ? 'Update' : 'New'}
               onClick={handleSubmit}
+              customStyle={{ marginTop: user.role === 'user' && 100 }}
             />
           </ScrollView>
         </View>

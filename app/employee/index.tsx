@@ -1,4 +1,5 @@
 import { getAllUser } from '@/api/get.info.api';
+import Button from '@/components/Button';
 import Dropdown from '@/components/Dropdown';
 import { Container } from '@/components/helpers/Container';
 import { policeRanks } from '@/components/helpers/ranks';
@@ -48,19 +49,18 @@ const Index = () => {
   }, []);
 
   return (
-    <View>
+    <ScrollView>
       <AppSidebar />
       <View style={Container as any}>
         <View style={styles.nav}>
           <View style={styles.containerHeader}>
             <Text style={styles.title}>Employees</Text>
-            <TouchableOpacity
-              style={styles.button}
-              onPress={() => nav.navigate('employee/new')}
-            >
-              <Text style={styles.buttonText}>Employee</Text>
-              {/* <BiAddToQueue style={styles.buttonIcon} /> */}
-            </TouchableOpacity>
+
+            <Button
+              text='Employee'
+              onClick={() => nav.navigate('employee/new')}
+              customStyle={{ marginRight: 10 }}
+            />
           </View>
 
           <View style={styles.accessLevel}>
@@ -123,7 +123,7 @@ const Index = () => {
           />
         </View>
       </View>
-    </View>
+    </ScrollView>
   );
 };
 

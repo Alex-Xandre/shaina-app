@@ -48,6 +48,10 @@ const authSlice = createSlice({
       state.shifts = action.payload.shift;
     },
 
+    fetchLeaves: (state, action: PayloadAction<{ leave: LeaveType[] }>) => {
+      state.leave = action.payload.leave;
+    },
+
     addUsers: (state, action: PayloadAction<UserTypes>) => {
       const newUser = action.payload;
       console.log(newUser);
@@ -62,5 +66,5 @@ const authSlice = createSlice({
   },
 });
 
-export const { login, signout, fetchUsers, addUsers, fetchShifts } = authSlice.actions;
+export const { login, signout, fetchUsers, addUsers, fetchShifts, fetchLeaves } = authSlice.actions;
 export default authSlice.reducer;

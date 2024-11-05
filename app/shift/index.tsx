@@ -5,11 +5,12 @@ import AppSidebar from '@/components/Sidebar';
 import { useAuth } from '@/state/AuthContext';
 import { PlusIcon } from 'react-native-heroicons/outline';
 import { Container } from '@/components/helpers/Container';
-import { TouchableOpacity } from 'react-native-gesture-handler';
+import { ScrollView, TouchableOpacity } from 'react-native-gesture-handler';
 import Table from '@/components/Table';
 import { convertTo12HourFormat } from '@/components/helpers/formatto12Hours';
 import { fetchShifts } from '@/state/AuthReducer';
 import { getTasks } from '@/api/tasks.api';
+import Button from '@/components/Button';
 
 const headers = [
   { header: 'User ID', accessor: 'userId' },
@@ -53,26 +54,21 @@ const Index = () => {
     .sort((a, b) => new Date(a.date) - new Date(b.date));
   const [searchId, setSearchId] = useState('');
   return (
-    <View>
+    <ScrollView>
       <AppSidebar />
       <View style={Container as any}>
         <View style={styles.header}>
-          <Text style={styles.title}>List of Shifts</Text>
-          <View style={styles.datePickerContainer}>
-            <TouchableOpacity onPress={() => setShowStartDatePicker(true)}>
-              <Text style={styles.dateText}>{startDate.toLocaleDateString()}</Text>
-            </TouchableOpacity>
-            <Text style={styles.dateSeparator}>to</Text>
-            <TouchableOpacity onPress={() => setShowEndDatePicker(true)}>
-              <Text style={styles.dateText}>{endDate.toLocaleDateString()}</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.addButton}>
-              <PlusIcon color='white' />
-              <Text style={styles.buttonText}>Shift</Text>
-            </TouchableOpacity>
-          </View>
+          <Text style={styles.title}>List of Shifts</Text> <Button text='Attendance' />
         </View>
-
+        <View style={styles.datePickerContainer}>
+          <TouchableOpacity onPress={() => setShowStartDatePicker(true)}>
+            <Text style={styles.dateText}>{startDate.toLocaleDateString()}</Text>
+          </TouchableOpacity>
+          <Text style={styles.dateSeparator}>to</Text>
+          <TouchableOpacity onPress={() => setShowEndDatePicker(true)}>
+            <Text style={styles.dateText}>{endDate.toLocaleDateString()}</Text>
+          </TouchableOpacity>
+        </View>
         {/* Start Date Picker */}
         {showStartDatePicker && (
           <DateTimePicker
@@ -135,13 +131,13 @@ const Index = () => {
           />
         </View>
       </View>
-    </View>
+    </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
   tableContainer: {
-    marginTop: 100,
+    marginTop: 20,
     marginRight: 20,
     backgroundColor: 'white',
     borderRadius: 10,
@@ -159,6 +155,7 @@ const styles = StyleSheet.create({
   datePickerContainer: {
     flexDirection: 'row',
     alignItems: 'center',
+    marginTop: 10,
     gap: 12,
   },
   dateText: {
@@ -175,7 +172,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#007bff',
-    padding: 10,
+    padding: 5,
+    paddingHorizontal: 10,
     borderRadius: 5,
   },
   buttonText: {

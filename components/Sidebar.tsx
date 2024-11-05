@@ -11,6 +11,9 @@ import {
 } from 'react-native-heroicons/outline';
 import { useAuth } from '@/state/AuthContext';
 import { useTab } from './helpers/TabContext';
+import Button from './Button';
+import { signout } from '@/state/AuthReducer';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const AppSidebar: React.FC = () => {
   const navigation: any = useNavigation();
@@ -21,7 +24,7 @@ const AppSidebar: React.FC = () => {
   const Menu = useMemo(
     () => [
       { title: 'Dashboard', url: 'Dashboard', icon: <HomeIcon /> },
-      { title: 'Profile', url: 'Profile', icon: <UserIcon /> },
+      { title: 'Profile', url: 'employee/new', icon: <UserIcon /> },
       { title: 'Attendance', url: 'Attendance', icon: <BanknotesIcon /> },
       { title: 'Shift and Task', url: 'Task', icon: <FolderIcon /> },
     ],
@@ -33,7 +36,7 @@ const AppSidebar: React.FC = () => {
       { title: 'Dashboard', url: 'home', icon: <HomeIcon /> },
       { title: 'Employees', url: 'employee/index', icon: <UserIcon /> },
       { title: 'Attendance', url: 'attendance/index', icon: <DocumentTextIcon /> },
-      { title: 'Leaves', url: 'leaves/index', icon: <FolderIcon /> },
+      { title: 'Leaves', url: 'leave/index', icon: <FolderIcon /> },
       { title: 'Shift/Tasks', url: 'shift/index', icon: <FolderIcon /> },
     ],
     []
@@ -48,12 +51,18 @@ const AppSidebar: React.FC = () => {
     []
   );
 
-  const menuToDisplay = user && user.role && user.role === 'user' ? Menu : user.role === 'hr' ? MenuHR : MenuAcc;
+  if (!user) {
+    return null;
+  }
+  const menuToDisplay = user && user?.role && user.role === 'user' ? Menu : user.role === 'hr' ? MenuHR : MenuAcc;
 
   const handleNavigation = (url: string, index: number) => {
     setActiveTab(index);
     navigation.navigate(url);
+    setSidebarVisible(false);
   };
+
+  const { dispatch } = useAuth();
 
   return (
     <View style={styles.container}>
@@ -69,6 +78,16 @@ const AppSidebar: React.FC = () => {
 
       {sidebarVisible && (
         <View style={styles.sidebar}>
+          <Button
+            text='Logout'
+            customStyle={{ marginBottom: 20 }}
+            onClick={async () => {
+              dispatch(signout());
+              navigation.navigate('index');
+              await AsyncStorage.removeItem('token');
+            }}
+          />
+
           <FlatList
             data={menuToDisplay}
             keyExtractor={(item) => item.url}

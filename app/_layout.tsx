@@ -26,13 +26,17 @@ function LayoutWithAuth() {
       navigation.navigate('home');
     }
   }, [isLoggedIn]);
+
   return (
     <Stack screenOptions={{ headerShown: false }}>
       {!isLoggedIn ? (
-        <Stack.Screen name='auth/login' />
+        <>
+          <Stack.Screen name='auth/login' />
+          <Stack.Screen name='auth/register' />
+        </>
       ) : (
         <>
-          <Stack.Screen name='/home' />
+          <Stack.Screen name='home' /> <Stack.Screen name='index' />
           {/* <Stack.Screen name='employee/index' /> 
           <Stack.Screen name='employee/new' /> */}
         </>

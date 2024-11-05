@@ -15,7 +15,7 @@ export const registerAttendance = async (data: any) => {
 
 export const getAttendance = async () => {
   try {
-    const response = await USER_API.get(`/api/attendance/:id`);
+    const response = await USER_API.get(`${API_ENDPOINT}/api/attendance/:id`);
     return response.data;
   } catch (error) {
     return handleError(error);

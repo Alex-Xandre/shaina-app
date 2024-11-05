@@ -55,6 +55,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 5,
     padding: 10,
+    paddingVertical:5,
     alignItems: 'center',
     justifyContent: 'center',
     flexDirection: 'row',
@@ -68,7 +69,7 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     color: '#050a30',
-    fontSize: 16,
+    fontSize: 14,
     marginLeft: 8,
   },
   loaderContainer: {

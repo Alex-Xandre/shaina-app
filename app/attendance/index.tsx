@@ -9,6 +9,7 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import Table from '@/components/Table';
 import { CheckCircleIcon } from 'react-native-heroicons/outline';
 import { formatDate } from '@/components/helpers/formatDateShift';
+import { ScrollView } from 'react-native-gesture-handler';
 const index = () => {
   const headers = [
     {
@@ -118,8 +119,6 @@ const index = () => {
               ? attendanceRecord.timeIn === ''
                 ? 'NOT CLOCKED IN'
                 : convertTo12HourFormat(attendanceRecord.timeIn)
-              : shiftRecord
-              ? convertTo12HourFormat(shiftRecord.timeIn)
               : 'NOT CLOCKED IN',
             timeOut: attendanceRecord
               ? attendanceRecord.timeIn === ''
@@ -137,11 +136,37 @@ const index = () => {
   };
 
   return (
-    <View>
+    <ScrollView>
       <AppSidebar />
       <View style={Container as any}>
         <View style={styles.header}>
-          <Text style={styles.title}>List of {isAttendance ? 'Attendance' : 'Salaries'}</Text>
+          <Text style={styles.title}>List of {!isAttendance ? 'Attendance' : 'Salaries'}</Text>
+
+          <Button text='Attendance' />
+        </View>
+
+        <View
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            display: 'flex',
+            width: '100%',
+            paddingRight:10,
+            justifyContent: 'space-between',
+            zIndex: 1000,
+          }}
+        >
+          <View style={styles.dropdownContainer}>
+            <Dropdown
+              value={status}
+              options={['All', 'Present', 'Absent', 'Late', 'Halfday', 'Leave'].map((x) => ({
+                value: x.toLowerCase(),
+                label: x.toUpperCase(),
+              }))}
+              id='status-dropdown'
+              onChange={(e) => setStatus(e as string)}
+            />
+          </View>
           <View style={styles.datePickerContainer}>
             <TouchableOpacity onPress={() => setShowStartDatePicker(true)}>
               <Text style={styles.dateText}>{startDate}</Text>
@@ -157,43 +182,6 @@ const index = () => {
           </View>
         </View>
 
-        <View style={{ flexDirection: 'row', alignItems: 'center', width: '100%', justifyContent: 'space-between' }}>
-          <View style={styles.dropdownContainer}>
-            <Dropdown
-              //   title='Attendance'
-              label='Status'
-              value={status}
-              options={['All', 'Present', 'Absent', 'Late', 'Halfday', 'Leave'].map((x) => ({
-                value: x.toLowerCase(),
-                label: x.toUpperCase(),
-              }))}
-              id='status-dropdown'
-              onChange={(e) => setStatus(e as string)}
-            />
-
-            {/* <TextInput
-              style={styles.dateInput}
-              value={startDate.toISOString().split('T')[0]} // Format date for input
-              onChange={(e) => setStartDate(new Date(e.target.value))}
-              onFocus={() => setShowStartDatePicker(true)}
-            />
-            <Text style={styles.dateSeparator}>to</Text>
-            <TextInput
-              style={styles.dateInput}
-              value={endDate.toISOString().split('T')[0]} // Format date for input
-              onChange={(e) => setEndDate(new Date(e.target.value))}
-              onFocus={() => setShowEndDatePicker(true)}
-            /> */}
-          </View>
-
-          <TouchableOpacity
-            style={styles.button}
-            //   onPress={() => nav.navigate('employee/new')}
-          >
-            <Text style={styles.buttonText}>Employee</Text>
-            {/* <BiAddToQueue style={styles.buttonIcon} /> */}
-          </TouchableOpacity>
-        </View>
         {/* {showStartDatePicker && (
           <DateTimePicker
             value={startDate}
@@ -301,7 +289,7 @@ const index = () => {
           />
         </View>
       </View>
-    </View>
+    </ScrollView>
   );
 };
 
@@ -317,7 +305,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     position: 'relative',
     zIndex: 10000,
-    width: '50%',
+    width: '30%',
+    marginTop:-10
   },
   dateInput: {
     borderWidth: 1,
@@ -334,7 +323,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginRight: 30,
-    marginTop: 100,
+    marginTop: 10,
   },
   tab: {
     fontSize: 14,
@@ -376,6 +365,8 @@ const styles = StyleSheet.create({
   datePickerContainer: {
     flexDirection: 'row',
     alignItems: 'center',
+    position: 'relative',
+    paddingTop: 30,
     gap: 12,
   },
   dateText: {
