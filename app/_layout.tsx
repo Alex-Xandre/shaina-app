@@ -5,15 +5,18 @@ import { Provider } from 'react-redux';
 import store from '../store';
 import { TabProvider } from '@/components/helpers/TabContext';
 import { useEffect } from 'react';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 export default function RootLayout() {
   return (
-    <Provider store={store}>
-      <AuthContextProvider>
-        <TabProvider>
-          <LayoutWithAuth />
-        </TabProvider>
-      </AuthContextProvider>
-    </Provider>
+    <GestureHandlerRootView>
+      <Provider store={store}>
+        <AuthContextProvider>
+          <TabProvider>
+            <LayoutWithAuth />
+          </TabProvider>
+        </AuthContextProvider>
+      </Provider>
+    </GestureHandlerRootView>
   );
 }
 
@@ -36,7 +39,18 @@ function LayoutWithAuth() {
         </>
       ) : (
         <>
-          <Stack.Screen name='home' /> <Stack.Screen name='index' />
+          <Stack.Screen name='home' />
+          <Stack.Screen name='index' />
+
+          <Stack.Screen name='employee/index' />
+          <Stack.Screen name='employee/new' />
+
+          <Stack.Screen name='attendance/index' />
+          <Stack.Screen name='attendance/new' />
+
+          <Stack.Screen name='attendance/index' />
+          <Stack.Screen name='attendance/new' />
+
           {/* <Stack.Screen name='employee/index' /> 
           <Stack.Screen name='employee/new' /> */}
         </>

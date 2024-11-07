@@ -52,9 +52,13 @@ const authSlice = createSlice({
       state.leave = action.payload.leave;
     },
 
+    fetchAttendance: (state, action: PayloadAction<{ attendance: AttendanceType[] }>) => {
+      state.attendance = action.payload.attendance;
+    },
+
     addUsers: (state, action: PayloadAction<UserTypes>) => {
       const newUser = action.payload;
-      console.log(newUser);
+
       const existingUserIndex = state.allUser.findIndex((user) => user._id === newUser?._id);
 
       if (existingUserIndex !== -1) {
@@ -63,8 +67,21 @@ const authSlice = createSlice({
         state.allUser.push(newUser);
       }
     },
+
+    addAttendance: (state, action: PayloadAction<AttendanceType>) => {
+      const newAttendance = action.payload;
+
+      const existingAttendanceIndex = state.attendance.findIndex((user) => user._id === newAttendance?._id);
+
+      if (existingAttendanceIndex !== -1) {
+        state.attendance[existingAttendanceIndex] = { ...state.attendance[existingAttendanceIndex], ...newAttendance };
+      } else {
+        state.attendance.push(newAttendance);
+      }
+    },
   },
 });
 
-export const { login, signout, fetchUsers, addUsers, fetchShifts, fetchLeaves } = authSlice.actions;
+export const { login, signout, fetchUsers, addUsers, fetchShifts, fetchLeaves, fetchAttendance, addAttendance } =
+  authSlice.actions;
 export default authSlice.reducer;

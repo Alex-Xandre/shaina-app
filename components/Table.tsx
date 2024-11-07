@@ -6,6 +6,7 @@ import Input from './Input';
 import { TableProps } from '@/types';
 import { roleColor } from './helpers/statusColor';
 import { MagnifyingGlassIcon } from 'react-native-heroicons/outline';
+import { useAuth } from '@/state/AuthContext';
 
 const Table = <T,>({
   data,
@@ -52,6 +53,9 @@ const Table = <T,>({
     });
   };
 
+  const { user } = useAuth();
+
+  console.log(currentItems,"nye")
   return (
     <View style={styles.container}>
       <View style={styles.nav}>
@@ -60,7 +64,7 @@ const Table = <T,>({
             <Text style={styles.count}>{data.length}</Text> All {title}
           </Text>
         )}
-        {!notSearch && (
+        {!notSearch && user.role !== 'user' && (
           <Input
             placeholder='Officer ID'
             icon={<MagnifyingGlassIcon />}
@@ -137,16 +141,18 @@ const Table = <T,>({
                     </Text>
                   </Text>
                 ))}
-                <View style={styles.cell}>
-                  <TouchableOpacity onPress={() => onEdit(row)}>
-                    <Text style={styles.actionText}>View</Text>
-                  </TouchableOpacity>
-                  {isPay && (
-                    <TouchableOpacity onPress={() => onViewPayment && onViewPayment(row)}>
-                      <Text style={styles.actionText}>{(row as any)?.salaryIsPaid ? 'Paid' : 'Mark as paid'}</Text>
+                {user.role !== 'user' && (
+                  <View style={styles.cell}>
+                    <TouchableOpacity onPress={() => onEdit(row)}>
+                      <Text style={styles.actionText}>View</Text>
                     </TouchableOpacity>
-                  )}
-                </View>
+                    {isPay && (
+                      <TouchableOpacity onPress={() => onViewPayment && onViewPayment(row)}>
+                        <Text style={styles.actionText}>{(row as any)?.salaryIsPaid ? 'Paid' : 'Mark as paid'}</Text>
+                      </TouchableOpacity>
+                    )}
+                  </View>
+                )}
               </View>
             ))
           )}

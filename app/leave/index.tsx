@@ -31,15 +31,20 @@ const Index = () => {
     };
     getUsers();
   }, []);
+
   return (
-    <ScrollView>
+    <View style={styles.container}>
       <AppSidebar />
-      <View style={Container as any}>
+      <View style={styles.content}>
         <View style={styles.header}>
-          <Text style={styles.title}>List of Leaves</Text>{' '}
-        <Button text='Leave' customStyle={{marginRight:10}}/>
+          <Text style={styles.title}>List of Leaves</Text>
+          <Button
+            text='Leave'
+            customStyle={{ marginRight: 10, paddingRight: 15 }}
+          />
         </View>
 
+        {leave.length === 0 && <Text>List Empty</Text>}
         <View style={styles.tableContainer}>
           <Table
             itemsPerPage={12}
@@ -65,53 +70,83 @@ const Index = () => {
           />
         </View>
       </View>
-    </ScrollView>
+    </View>
   );
 };
+
 const styles = StyleSheet.create({
+  title: {
+    fontSize: 16,
+    fontWeight: '600',
+  },
   tableContainer: {
     marginTop: 20,
     marginRight: 20,
     backgroundColor: 'white',
     borderRadius: 10,
   },
+  container: {
+    flex: 1,
+
+    paddingVertical: 18,
+    width: '100%',
+  },
+  content: {
+    height: '90%',
+    margin: 0,
+    position: 'relative',
+    paddingLeft: 20,
+  },
   header: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 10,
+    marginTop: 30,
     paddingRight: 10,
   },
-  title: {
-    fontSize: 16,
-    fontWeight: '600',
+  headerText: {
+    fontWeight: '800',
   },
-  datePickerContainer: {
-    flexDirection: 'row',
+  chevron: {
+    marginHorizontal: 8,
+  },
+  headerSubText: {
+    opacity: 0.7,
+  },
+  form: {
+    padding: 16,
+    borderRadius: 8,
+    shadowColor: '#000',
+    shadowOpacity: 0.2,
+    shadowRadius: 1,
+    flexGrow: 1,
+  },
+  avatarContainer: {
     alignItems: 'center',
-    gap: 12,
+    marginBottom: 16,
   },
-  dateText: {
-    borderWidth: 1,
+  avatar: {
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    marginBottom: 8,
+    opacity: 0.7,
+  },
+  hiddenInput: {
+    display: 'none',
+  },
+  input: {
+    borderBottomWidth: 1,
     borderColor: '#ccc',
-    padding: 10,
-    borderRadius: 5,
-    marginHorizontal: 5,
+    marginBottom: 16,
+    padding: 8,
   },
-  dateSeparator: {
-    marginHorizontal: 5,
-  },
-  addButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#007bff',
-    padding: 5,
-    paddingHorizontal: 10,
-    borderRadius: 5,
-  },
-  buttonText: {
-    color: 'white',
-    marginLeft: 5,
+  note: {
+    fontSize: 12,
+    marginVertical: 16,
+    color: '#666',
+    marginTop: 100,
   },
 });
-
 export default Index;

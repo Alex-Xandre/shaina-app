@@ -23,10 +23,10 @@ const AppSidebar: React.FC = () => {
 
   const Menu = useMemo(
     () => [
-      { title: 'Dashboard', url: 'Dashboard', icon: <HomeIcon /> },
-      { title: 'Profile', url: 'employee/new', icon: <UserIcon /> },
-      { title: 'Attendance', url: 'Attendance', icon: <BanknotesIcon /> },
-      { title: 'Shift and Task', url: 'Task', icon: <FolderIcon /> },
+      { title: 'Dashboard', url: 'home', icon: <HomeIcon color='#fff' /> },
+      { title: 'Profile', url: 'employee/new', icon: <UserIcon color='#fff' /> },
+      { title: 'Attendance', url: 'attendance/index', icon: <BanknotesIcon color='#fff' /> },
+      { title: 'Leaves', url: 'leave/index', icon: <FolderIcon color='#fff' /> },
     ],
     []
   );
@@ -51,9 +51,9 @@ const AppSidebar: React.FC = () => {
     []
   );
 
-  if (!user) {
-    return null;
-  }
+  // if (!user) {
+  //   return null;
+  // }
   const menuToDisplay = user && user?.role && user.role === 'user' ? Menu : user.role === 'hr' ? MenuHR : MenuAcc;
 
   const handleNavigation = (url: string, index: number) => {
@@ -78,16 +78,6 @@ const AppSidebar: React.FC = () => {
 
       {sidebarVisible && (
         <View style={styles.sidebar}>
-          <Button
-            text='Logout'
-            customStyle={{ marginBottom: 20 }}
-            onClick={async () => {
-              dispatch(signout());
-              navigation.navigate('index');
-              await AsyncStorage.removeItem('token');
-            }}
-          />
-
           <FlatList
             data={menuToDisplay}
             keyExtractor={(item) => item.url}
@@ -101,6 +91,17 @@ const AppSidebar: React.FC = () => {
               </TouchableOpacity>
             )}
           />
+      
+
+          <Button
+            text='Logout'
+            customStyle={{ marginBottom: 20 }}
+            onClick={async () => {
+              dispatch(signout());
+              navigation.navigate('index');
+              await AsyncStorage.removeItem('token');
+            }}
+          />
         </View>
       )}
     </View>
@@ -112,7 +113,7 @@ const styles = StyleSheet.create({
     flex: 1,
     width: '100%',
 
-    zIndex: 1000,
+    zIndex: 1001,
   },
   appBar: {
     height: 60,
@@ -134,8 +135,9 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 60,
     left: 0,
-    height: '100vh' as any,
     padding: 16,
+    flex: 1,
+    height: 800,
   },
   menuItem: {
     flexDirection: 'row',

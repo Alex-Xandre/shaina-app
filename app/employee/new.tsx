@@ -1,5 +1,5 @@
 import React, { ChangeEvent, useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity, TextInput, ScrollView, ToastAndroid } from 'react-native';
+import { View, Text, StyleSheet, Image, TouchableOpacity, TextInput, ToastAndroid } from 'react-native';
 // import { v4 as uuidv4 } from 'uuid';
 
 import Button from '../../components/Button';
@@ -15,6 +15,7 @@ import { uploadFile } from '@/api/user.api';
 import { registerUserByAdmin } from '@/api/register.api';
 import { addUsers } from '@/state/AuthReducer';
 import { useLocalSearchParams, useNavigation } from 'expo-router';
+import { ScrollView } from 'react-native-gesture-handler';
 
 const NewEmployee = () => {
   const navigate: any = useNavigation();
@@ -94,8 +95,6 @@ const NewEmployee = () => {
       return;
     }
 
-    console.log(res);
-
     dispatch(addUsers(res));
 
     setTimeout(() => {
@@ -118,104 +117,112 @@ const NewEmployee = () => {
   };
 
   return (
-    <View>
+    <View style={styles.container}>
       <AppSidebar />
-      <View style={Container as any}>
-        <View style={styles.content}>
-          <View style={styles.header}>
-            <Text style={styles.headerText}> {user.role === 'user' ? 'Profile' : 'New Employee'}</Text>
-          </View>
+      <ScrollView
+        style={styles.content}
+        showsVerticalScrollIndicator={false}
+      >
+        <View style={styles.header}>
+          <Text style={styles.headerText}> {user.role === 'user' ? 'Profile' : 'New Employee'}</Text>
+        </View>
 
-          <ScrollView style={styles.form}>
-            <TouchableOpacity
-              style={styles.avatarContainer}
-              onPress={() => {
-                if (inputFile.current !== null) {
-                  inputFile.current.click();
-                }
+        <View style={styles.form}>
+          <TouchableOpacity
+            style={styles.avatarContainer}
+            onPress={() => {
+              if (inputFile.current !== null) {
+                inputFile.current.click();
+              }
+            }}
+          >
+            <Image
+              source={{
+                uri: formData.avatar
+                  ? formData.avatar
+                  : 'https://res.cloudinary.com/dyhsose70/image/upload/v1696562163/avatar_ko5htr.png',
               }}
-            >
-              <Image
-                source={{
-                  uri: formData.avatar
-                    ? formData.avatar
-                    : 'https://res.cloudinary.com/dyhsose70/image/upload/v1696562163/avatar_ko5htr.png',
-                }}
-                style={styles.avatar}
-              />
-              <input
+              style={styles.avatar}
+            />
+            {/* <input
                 type='file'
                 ref={inputFile}
                 onChange={changeAvatar}
                 style={styles.hiddenInput}
-              />
-            </TouchableOpacity>
+              /> */}
+          </TouchableOpacity>
 
-            <View style={{ width: '100%', marginBottom: 80, position: 'relative', zIndex: 10000 }}>
-              <Dropdown
-                label='Account Access'
-                disabled={user.role === 'user'}
-                value={formData.role}
-                options={[
-                  { value: 'user', label: 'Employee' },
-                  { value: 'act', label: 'Accountant' },
-                  { value: 'hr', label: 'HR Manager' },
-                ]}
-                onChange={(e) => handleChange('role', e as string)}
-              />
-            </View>
-
-            {forms.map((frm) => {
-              if (frm.name === 'rank') {
-                return (
-                  <View style={{ width: '100%', position: 'relative', zIndex: 1000 }}>
-                    <Dropdown
-                      label='Rank'
-                      value={formData.rank}
-                      disabled={user.role === 'user'}
-                      options={policeRanks.map((item) => ({
-                        label: item.rank,
-                        value: item.abbreviation,
-                      }))}
-                      onChange={(e) => handleChange('rank', e as string)}
-                    />
-                  </View>
-                );
-              }
-              return (
-                <Input
-                  style={styles.input}
-                  key={frm.name}
-                  readOnly={user.role === 'user'}
-                  label={frm.label}
-                  placeholder={frm.placeholder}
-                  onChangeText={(value) => handleChange(frm.name, value)}
-                  value={formData[frm.name as keyof typeof formData] as any}
-                />
-              );
-            })}
-
-            {user.role !== 'user' && (
-              <Text style={styles.note}>
-                Note: Passwords are auto-generated and will be emailed to the access email - Password Format is
-                (LastName_FirstName-Birth Year) e.g. Juan_Delacruz-2024
-              </Text>
-            )}
-            <Button
-              text={user.role === 'user' ? 'Save Changes' : data ? 'Update' : 'New'}
-              onClick={handleSubmit}
-              customStyle={{ marginTop: user.role === 'user' && 100 }}
+          <View style={{ width: '100%', marginBottom: 90, position: 'relative', zIndex: 10000 }}>
+            <Dropdown
+              label='Account Access'
+              disabled={user.role === 'user'}
+              value={formData.role}
+              options={[
+                { value: 'user', label: 'Employee' },
+                { value: 'act', label: 'Accountant' },
+                { value: 'hr', label: 'HR Manager' },
+              ]}
+              onChange={(e) => handleChange('role', e as string)}
             />
-          </ScrollView>
+          </View>
+
+          {forms.map((frm) => {
+            if (frm.name === 'rank') {
+              return (
+                <View style={{ width: '100%', position: 'relative', zIndex: 1000 }}>
+                  <Dropdown
+                    label='Rank'
+                    value={formData.rank}
+                    disabled={user.role === 'user'}
+                    options={policeRanks.map((item) => ({
+                      label: item.rank,
+                      value: item.abbreviation,
+                    }))}
+                    onChange={(e) => handleChange('rank', e as string)}
+                  />
+                </View>
+              );
+            }
+            return (
+              <Input
+                style={styles.input}
+                key={frm.name}
+                readOnly={user.role === 'user' && frm.name === 'userId'}
+                label={frm.label}
+                placeholder={frm.placeholder}
+                onChangeText={(value) => handleChange(frm.name, value)}
+                value={formData[frm.name as keyof typeof formData] as any}
+              />
+            );
+          })}
+
+          {user.role !== 'user' && (
+            <Text style={styles.note}>
+              Note: Passwords are auto-generated and will be emailed to the access email - Password Format is
+              (LastName_FirstName-Birth Year) e.g. Juan_Delacruz-2024
+            </Text>
+          )}
+          <Button
+            text={user.role === 'user' ? 'Save Changes' : data ? 'Update' : 'New'}
+            onClick={handleSubmit}
+            customStyle={{ marginTop: user.role === 'user' && 100 }}
+          />
         </View>
-      </View>
+      </ScrollView>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: 'white',
+    paddingVertical: 18,
+    width: '100%',
+  },
   content: {
-    paddingRight: 15,
+    height: '90%',
+    margin: 0,
     position: 'relative',
   },
   header: {
@@ -225,7 +232,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   headerText: {
-    fontWeight: '600',
+    fontWeight: '800',
   },
   chevron: {
     marginHorizontal: 8,
@@ -234,14 +241,12 @@ const styles = StyleSheet.create({
     opacity: 0.7,
   },
   form: {
-    backgroundColor: '#fff',
     padding: 16,
-    height: '80vh' as any,
     borderRadius: 8,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.2,
     shadowRadius: 1,
+    flexGrow: 1,
   },
   avatarContainer: {
     alignItems: 'center',

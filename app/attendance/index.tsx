@@ -10,6 +10,10 @@ import Table from '@/components/Table';
 import { CheckCircleIcon } from 'react-native-heroicons/outline';
 import { formatDate } from '@/components/helpers/formatDateShift';
 import { ScrollView } from 'react-native-gesture-handler';
+import { getAttendance } from '@/api/attendance.api';
+import { fetchAttendance, fetchShifts, fetchUsers } from '@/state/AuthReducer';
+import { getTasks } from '@/api/tasks.api';
+import { getAllUser } from '@/api/get.info.api';
 const index = () => {
   const headers = [
     {
@@ -35,19 +39,50 @@ const index = () => {
   ];
 
   const [isAttendance, setIsAttendance] = useState(false);
-  const [startDate, setStartDate] = useState('2024-09-13');
+  const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const { allUser, attendance, shifts, dispatch } = useAuth();
   const [status, setStatus] = useState('all');
   const [showStartDatePicker, setShowStartDatePicker] = useState(false);
   const [showEndDatePicker, setShowEndDatePicker] = useState(false);
+  const { user } = useAuth();
+
+  //get attendance
+  useEffect(() => {
+    const getUsers = async () => {
+      const getAtt = await getAttendance();
+      dispatch(fetchAttendance({ attendance: getAtt }));
+    };
+    getUsers();
+  }, []);
+
+  //get shiffts
+  useEffect(() => {
+    const getUsers = async () => {
+      const getAllShift = await getTasks();
+
+      dispatch(fetchShifts({ shift: getAllShift }));
+    };
+    getUsers();
+  }, []);
+
+  //get All Users
+
+  useEffect(() => {
+    const getUsers = async () => {
+      const getAllUsers = await getAllUser();
+
+      dispatch(fetchUsers({ users: getAllUsers }));
+    };
+    getUsers();
+  }, []);
 
   useEffect(() => {
     const today = new Date();
-    // const startDate = new Date(today.getFullYear(), today.getMonth(), 1).toISOString().split('T')[0];
+    const startDate = new Date(today.getFullYear(), today.getMonth(), 1).toISOString().split('T')[0];
     const endDate = today.toISOString().split('T')[0];
 
-    // setStartDate(startDate);
+    setStartDate(startDate);
     setEndDate(endDate);
   }, []);
 
@@ -76,6 +111,7 @@ const index = () => {
 
   const filteredData = () => {
     if (startDate && endDate) {
+      console.log(user, 'potek');
       const dateRange = generateDateRange(startDate, endDate);
 
       const userIdsInShifts = new Set(shifts.map((shift) => shift.userId));
@@ -89,12 +125,9 @@ const index = () => {
           const formattedDate = new Date(date).toISOString().split('T')[0];
 
           const [year, month, day] = formattedDate.split('-');
-          const formattedDate2 = `${month}-${day}-${year}`; // Result will be 10-29-2024
+          const formattedDate2 = `${month}-${day}-${year}`;
 
           const shiftRecord = shifts.find((record) => record.userId === user._id && record.date === formattedDate2);
-
-          console.log(shiftRecord);
-
           // console.log(shifts);
           const attendanceRecord = attendance.find(
             (record) =>
@@ -135,23 +168,22 @@ const index = () => {
     return [];
   };
 
+  console.log(filteredData(), 'hi');
   return (
-    <ScrollView>
+    <View style={styles.container}>
       <AppSidebar />
-      <View style={Container as any}>
+      <View style={styles.content}>
         <View style={styles.header}>
           <Text style={styles.title}>List of {!isAttendance ? 'Attendance' : 'Salaries'}</Text>
-
-          <Button text='Attendance' />
+          {user.role !== 'user' && <Button text='Attendance' />}
         </View>
 
         <View
           style={{
-            flexDirection: 'row',
             alignItems: 'center',
             display: 'flex',
             width: '100%',
-            paddingRight:10,
+            paddingRight: 10,
             justifyContent: 'space-between',
             zIndex: 1000,
           }}
@@ -182,14 +214,14 @@ const index = () => {
           </View>
         </View>
 
-        {/* {showStartDatePicker && (
+        {showStartDatePicker && (
           <DateTimePicker
-            value={startDate}
+            value={new Date(startDate)}
             mode='date'
             display='default'
             onChange={(event, date) => {
               if (event.type === 'set') {
-                setStartDate(date || startDate);
+                setStartDate((date && date.toISOString().split('T')[0]) || startDate);
               }
               setShowStartDatePicker(false);
             }}
@@ -197,17 +229,17 @@ const index = () => {
         )}
         {showEndDatePicker && (
           <DateTimePicker
-            value={endDate}
+            value={new Date(endDate)}
             mode='date'
             display='default'
             onChange={(event, date) => {
               if (event.type === 'set') {
-                setEndDate(date || endDate);
+                setStartDate((date && date.toISOString().split('T')[0]) || endDate);
               }
               setShowEndDatePicker(false);
             }}
           />
-        )} */}
+        )}
 
         <View style={styles.tabContainer}>
           <View style={{ flexDirection: 'row' }}>
@@ -217,6 +249,7 @@ const index = () => {
             >
               Attendance
             </Text>
+
             <Text
               style={[styles.tab, isAttendance && styles.activeTab]}
               onPress={() => setIsAttendance(true)}
@@ -226,75 +259,87 @@ const index = () => {
           </View>
         </View>
 
-        <View style={styles.tableContainer}>
-          <Table
-            itemsPerPage={12}
-            handleBatch={
-              isAttendance && (
-                <div className='inline-flex hover:bg-gray ml-2'>
-                  <span>
-                    <CheckCircleIcon />
-                  </span>
-                  <span className='ml-2 '>Mark All Selected As Paid</span>
-                </div>
-              )
+        <Table
+          itemsPerPage={12}
+          handleBatch={
+            isAttendance &&
+            // <div className='inline-flex hover:bg-gray ml-2'>
+            //   <span>
+            //     <CheckCircleIcon />
+            //   </span>
+            //   <span className='ml-2 '>Mark All Selected As Paid</span>
+            // </div>
+            null
+          }
+          // submitSelected={(e) => handleSubmit(e)}
+          handleSearch={(e) => setSearchId(e.target.value)}
+          title='Attendance'
+          isPay={isAttendance}
+          data={filteredData()
+            // .filter((record) => status === 'all' || (record && record.status === status))
+            // ?.filter((x) => x?.userId?.toLowerCase().includes(searchId?.toLowerCase()))
+            // // .filter((x) => shifts.find((y) => y.date === formatDate(new Date(x === null ? Date.now() : x.date))))
+            ?.filter((x) => (isAttendance ? x !== null && x.status : x))}
+          columns={headers as any}
+          onEdit={(item) => console.log('first')}
+          onRemove={function (): void {
+            throw new Error('Function not implemented.');
+          }}
+          onViewPayment={(data) => {
+            function removeAmPm(time: string): string {
+              // Assuming time is in the format "hh:mm AM" or "hh:mm PM"
+              return time.replace(/ AM| PM/, '');
             }
-            // submitSelected={(e) => handleSubmit(e)}
-            handleSearch={(e) => setSearchId(e.target.value)}
-            title='Attendance'
-            isPay={isAttendance}
-            data={filteredData()
-              .filter((record) => status === 'all' || (record && record.status === status))
-              ?.filter((x) => x?.userId?.toLowerCase().includes(searchId?.toLowerCase()))
-              .filter((x) => shifts.find((y) => y.date === formatDate(new Date(x === null ? Date.now() : x.date))))
-              ?.filter((x) => (isAttendance ? x !== null && x.status : x))}
-            columns={headers as any}
-            onEdit={(item) => console.log('first')}
-            onRemove={function (): void {
-              throw new Error('Function not implemented.');
-            }}
-            onViewPayment={(data) => {
-              function removeAmPm(time: string): string {
-                // Assuming time is in the format "hh:mm AM" or "hh:mm PM"
-                return time.replace(/ AM| PM/, '');
-              }
 
-              const tI = data.timeIn;
-              const tO = data.timeOut;
-              // const handleSubmit = async () => {
-              //   const res = await registerAttendance({
-              //     ...data,
-              //     salaryIsPaid: true,
-              //     timeIn: tI === 'N/A' || tI === 'NOT CLOCKED IN' ? '00:00' : removeAmPm(data.timeIn),
-              //     timeOut: tO === 'N/A' || tO === 'NOT CLOCKED IN' ? '00:00' : removeAmPm(data.timeOut),
-              //     userId: allUser.find((x) => x.userId === data.userId)?._id,
-              //   });
+            const tI = data.timeIn;
+            const tO = data.timeOut;
+            // const handleSubmit = async () => {
+            //   const res = await registerAttendance({
+            //     ...data,
+            //     salaryIsPaid: true,
+            //     timeIn: tI === 'N/A' || tI === 'NOT CLOCKED IN' ? '00:00' : removeAmPm(data.timeIn),
+            //     timeOut: tO === 'N/A' || tO === 'NOT CLOCKED IN' ? '00:00' : removeAmPm(data.timeOut),
+            //     userId: allUser.find((x) => x.userId === data.userId)?._id,
+            //   });
 
-              //   if (res.success === false) return toast.error(res.data?.msg || 'Error');
+            //   if (res.success === false) return toast.error(res.data?.msg || 'Error');
 
-              //   toast.success('Salary updated', {
-              //     position: 'bottom-right',
-              //   });
-              //   dispatch({ type: 'ADD_ATTENDANCE', payload: res });
-              // };
+            //   toast.success('Salary updated', {
+            //     position: 'bottom-right',
+            //   });
+            //   dispatch({ type: 'ADD_ATTENDANCE', payload: res });
+            // };
 
-              // if (data.salaryIsPaid) {
-              //   toast.error('Salary already marked as paid', {
-              //     position: 'bottom-right',
-              //   });
-              // } else {
-              //   handleSubmit();
-              // }
-            }}
-          />
-        </View>
+            // if (data.salaryIsPaid) {
+            //   toast.error('Salary already marked as paid', {
+            //     position: 'bottom-right',
+            //   });
+            // } else {
+            //   handleSubmit();
+            // }
+          }}
+        />
       </View>
-    </ScrollView>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: 'white',
+    paddingVertical: 18,
+    width: '100%',
+  },
+  content: {
+    height: '90%',
+    paddingLeft: 15,
+    margin: 0,
+    position: 'relative',
+  },
+
   tableContainer: {
+    marginTop: 100,
     marginRight: 20,
     backgroundColor: 'white',
     borderRadius: 10,
@@ -304,9 +349,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     position: 'relative',
-    zIndex: 10000,
-    width: '30%',
-    marginTop:-10
+    zIndex: 1000,
+    width: '100%',
+    marginTop: 30,
   },
   dateInput: {
     borderWidth: 1,
@@ -333,7 +378,7 @@ const styles = StyleSheet.create({
   },
   activeTab: {
     borderBottomWidth: 2,
-    borderBottomColor: '#007bff', // Your primary color
+    borderBottomColor: '#007bff',
   },
   button: {
     flexDirection: 'row',
@@ -366,7 +411,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     position: 'relative',
-    paddingTop: 30,
+    marginTop: 80,
     gap: 12,
   },
   dateText: {

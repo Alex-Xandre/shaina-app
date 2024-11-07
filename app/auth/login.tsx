@@ -51,9 +51,9 @@ const Login = () => {
     const getUsers = await getUser();
     dispatch(login({ user: getUsers, token: res.token }));
     navigation.navigate('home');
-    setTimeout(() => {
-      window.location.reload();
-    }, 1500);
+    // setTimeout(() => {
+    //   window.location.reload();
+    // }, 1500);
   };
 
   return (
@@ -71,7 +71,13 @@ const Login = () => {
       </View>
       <ThemedText style={styles.title}>LOGIN</ThemedText>
       <Input
-        icon={<UserIcon height={16} />}
+        icon={
+          <UserIcon
+            height={24}
+            width={24}
+            color='#000'
+          />
+        }
         placeholder='Officer ID'
         value={userId}
         onChangeText={setUserId}
@@ -80,7 +86,13 @@ const Login = () => {
       <Input
         placeholder='Password'
         value={password}
-        icon={<KeyIcon height={16} />}
+        icon={
+          <KeyIcon
+            height={24}
+            width={24}
+            color='#000'
+          />
+        }
         onChangeText={setPassword}
         secureTextEntry={true}
         error={passwordError}
@@ -131,10 +143,11 @@ const styles = StyleSheet.create({
     color: 'white',
   },
   title: {
-    fontSize: 32,
+    fontSize: 25,
     fontWeight: 'semibold',
     textAlign: 'center',
     marginBottom: 24,
+    marginTop: 10,
   },
   linkContainer: {
     flexDirection: 'row',

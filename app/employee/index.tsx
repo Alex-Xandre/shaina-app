@@ -9,8 +9,7 @@ import { useAuth } from '@/state/AuthContext';
 import { fetchUsers } from '@/state/AuthReducer';
 import { useNavigation } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { ScrollView } from 'react-native-gesture-handler';
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 const Index = () => {
   const headers = [
@@ -42,15 +41,19 @@ const Index = () => {
   useEffect(() => {
     const getUsers = async () => {
       const getAllUsers = await getAllUser();
-      console.log(getAllUsers);
+
       dispatch(fetchUsers({ users: getAllUsers }));
     };
     getUsers();
   }, []);
 
   return (
-    <ScrollView>
-      <AppSidebar />
+    <ScrollView
+      contentContainerStyle={{ flexGrow: 1 }}
+      style={{ flex: 1 }}
+    >
+      {/* <AppSidebar /> */}
+      <Text>hi</Text>
       <View style={Container as any}>
         <View style={styles.nav}>
           <View style={styles.containerHeader}>
