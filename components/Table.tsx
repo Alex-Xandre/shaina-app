@@ -55,7 +55,6 @@ const Table = <T,>({
 
   const { user } = useAuth();
 
-  console.log(currentItems,"nye")
   return (
     <View style={styles.container}>
       <View style={styles.nav}>
@@ -103,7 +102,7 @@ const Table = <T,>({
                 {column.header}
               </Text>
             ))}
-            <Text style={styles.headerCell}>Actions</Text>
+            {user.role !== 'user' && <Text style={styles.headerCell}>Actions</Text>}
           </View>
 
           {currentItems.length === 0 ? (

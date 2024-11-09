@@ -84,7 +84,7 @@ const NewEmployee = () => {
   const { dispatch } = useAuth();
 
   const handleSubmit = async () => {
-    console.log(formData);
+   
     const res = await registerUserByAdmin({
       ...formData,
       password: new Date(formData.birthday as string).getFullYear(),
@@ -98,7 +98,6 @@ const NewEmployee = () => {
     dispatch(addUsers(res));
 
     setTimeout(() => {
-      console.log('first');
       navigate.navigate('employee/index');
     }, 1500);
   };

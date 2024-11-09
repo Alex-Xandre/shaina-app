@@ -95,7 +95,7 @@ const AppSidebar: React.FC = () => {
 
           <Button
             text='Logout'
-            customStyle={{ marginBottom: 20 }}
+            customStyle={{ marginBottom: 100 }}
             onClick={async () => {
               dispatch(signout());
               navigation.navigate('index');

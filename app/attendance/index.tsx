@@ -111,7 +111,6 @@ const index = () => {
 
   const filteredData = () => {
     if (startDate && endDate) {
-      console.log(user, 'potek');
       const dateRange = generateDateRange(startDate, endDate);
 
       const userIdsInShifts = new Set(shifts.map((shift) => shift.userId));
@@ -168,7 +167,6 @@ const index = () => {
     return [];
   };
 
-  console.log(filteredData(), 'hi');
   return (
     <View style={styles.container}>
       <AppSidebar />
@@ -234,7 +232,7 @@ const index = () => {
             display='default'
             onChange={(event, date) => {
               if (event.type === 'set') {
-                setStartDate((date && date.toISOString().split('T')[0]) || endDate);
+                setEndDate((date && date.toISOString().split('T')[0]) || endDate);
               }
               setShowEndDatePicker(false);
             }}
@@ -276,7 +274,7 @@ const index = () => {
           title='Attendance'
           isPay={isAttendance}
           data={filteredData()
-            // .filter((record) => status === 'all' || (record && record.status === status))
+            .filter((record) => status === 'all' || (record && record.status === status))
             // ?.filter((x) => x?.userId?.toLowerCase().includes(searchId?.toLowerCase()))
             // // .filter((x) => shifts.find((y) => y.date === formatDate(new Date(x === null ? Date.now() : x.date))))
             ?.filter((x) => (isAttendance ? x !== null && x.status : x))}

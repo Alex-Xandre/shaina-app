@@ -39,8 +39,8 @@ const Waiting_Driver_Screen = () => {
       setInitialRegion({
         latitude: location.coords.latitude,
         longitude: location.coords.longitude,
-        latitudeDelta: 0.005,
-        longitudeDelta: 0.005,
+        latitudeDelta: 0.0922,
+        longitudeDelta: 0.0421,
       });
 
       const current = new Date();
@@ -53,7 +53,6 @@ const Waiting_Driver_Screen = () => {
     };
 
     getLocation();
-
 
     if (user && attendance?.length) {
       const today = new Date().toISOString().split('T')[0];
@@ -158,15 +157,11 @@ const Waiting_Driver_Screen = () => {
         <View style={styles.timeBox}>
           <Text style={styles.label}>Time-out:</Text>
           <Text style={styles.time}>{data?.timeOut ? convertTo12HourFormat(data.timeOut) : 'Not clocked out yet'}</Text>
-          {attendanceStatus === 'present' && !data?.timeOut ? (
+          {attendanceStatus === 'present' && data?.timeOut === '' ? (
             <TouchableOpacity
               style={styles.button}
               onPress={handleTimeOut}
             >
-              <Text style={styles.buttonText}>Time Out</Text>
-            </TouchableOpacity>
-          ) : attendanceStatus === 'present' && data?.timeOut === '' ? (
-            <TouchableOpacity style={styles.button2}>
               <Text style={styles.buttonText}>Time Out</Text>
             </TouchableOpacity>
           ) : null}

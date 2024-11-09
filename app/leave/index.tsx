@@ -21,7 +21,7 @@ const Index = () => {
   ];
 
   const { allUser, leave, dispatch } = useAuth();
-  const nav = useNavigation();
+  const nav: any = useNavigation();
 
   const [searchId, setSearchId] = useState('');
   useEffect(() => {
@@ -32,6 +32,7 @@ const Index = () => {
     getUsers();
   }, []);
 
+
   return (
     <View style={styles.container}>
       <AppSidebar />
@@ -40,35 +41,35 @@ const Index = () => {
           <Text style={styles.title}>List of Leaves</Text>
           <Button
             text='Leave'
+            onClick={() => nav.navigate('leave/new')}
             customStyle={{ marginRight: 10, paddingRight: 15 }}
           />
         </View>
 
         {leave.length === 0 && <Text>List Empty</Text>}
-        <View style={styles.tableContainer}>
-          <Table
-            itemsPerPage={12}
-            handleSearch={(e) => setSearchId(e.target.value)}
-            title='Leaves'
-            data={leave
-              .map((x) => {
-                const userId = allUser.find((y) => y._id === x.userId)?.userId;
-                const user = allUser.find((y) => y._id === x.userId);
-                return {
-                  ...x,
-                  userId: userId,
-                  name: user && `${user.firstName} ${user.lastName}`,
-                  status: x.status ? 'Confirmed' : 'Unconfirmed',
-                };
-              })
-              ?.filter((x) => x?.userId?.toLowerCase().includes(searchId?.toLowerCase()))}
-            columns={headers as any}
-            onEdit={(item) => console.log('first')}
-            onRemove={function (): void {
-              throw new Error('Function not implemented.');
-            }}
-          />
-        </View>
+
+        <Table
+          itemsPerPage={12}
+          handleSearch={(e) => setSearchId(e.target.value)}
+          title='Leaves'
+          data={leave
+            .map((x) => {
+              const userId = allUser.find((y) => y._id === x.userId)?.userId;
+              const user = allUser.find((y) => y._id === x.userId);
+              return {
+                ...x,
+                userId: userId,
+                name: user && `${user.firstName} ${user.lastName}`,
+                status: x.status ? 'Confirmed' : 'Unconfirmed',
+              };
+            })
+            ?.filter((x) => x?.userId?.toLowerCase().includes(searchId?.toLowerCase()))}
+          columns={headers as any}
+          onEdit={(item) => console.log('first')}
+          onRemove={function (): void {
+            throw new Error('Function not implemented.');
+          }}
+        />
       </View>
     </View>
   );
@@ -87,22 +88,23 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-
+    backgroundColor: 'white',
     paddingVertical: 18,
     width: '100%',
   },
   content: {
     height: '90%',
+    paddingLeft: 15,
     margin: 0,
     position: 'relative',
-    paddingLeft: 20,
+    paddingRight: 10,
   },
+
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: 10,
-    marginTop: 30,
+ 
     paddingRight: 10,
   },
   headerText: {

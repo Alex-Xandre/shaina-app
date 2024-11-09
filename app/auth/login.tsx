@@ -75,7 +75,7 @@ const Login = () => {
           <UserIcon
             height={24}
             width={24}
-            color='#000'
+            color='#808080'
           />
         }
         placeholder='Officer ID'
@@ -90,7 +90,7 @@ const Login = () => {
           <KeyIcon
             height={24}
             width={24}
-            color='#000'
+            color='#808080'
           />
         }
         onChangeText={setPassword}

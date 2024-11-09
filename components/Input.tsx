@@ -80,6 +80,7 @@ const styles = StyleSheet.create({
   },
   iconContainer: {
     position: 'absolute',
+    zIndex:100,
     left: 10,
     top: 12,
   },

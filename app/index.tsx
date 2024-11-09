@@ -44,20 +44,20 @@ const styledComponents = StyleSheet.create({
   },
 
   logo: {
-    width: 50,
-    height: 50,
-    marginBottom: 20, // Increased space below the logo
+    width: 100,
+    height: 100,
+    marginBottom: 20,
   },
 
   textContainer: {
-    alignItems: 'center', // Centers the text horizontally
-    marginBottom: 24, // Space between text and login button
+    alignItems: 'center',
+    marginBottom: 24,
   },
 
   text: {
     color: 'white',
-    fontSize: 18, // Adjust text size for better readability
-    textAlign: 'center', // Centers the text horizontally
+    fontSize: 18,
+    textAlign: 'center',
   },
 
   welcomeText: {

@@ -110,7 +110,12 @@ const Register = () => {
       <ThemedText style={styles.title}>Register</ThemedText>
 
       <Input
-        icon={<UserIcon height={16} />}
+        icon={
+          <UserIcon
+            height={24}
+            color='#808080'
+          />
+        }
         placeholder='Officer ID'
         value={userId}
         onChangeText={setUserId}
@@ -120,7 +125,12 @@ const Register = () => {
       <Input
         placeholder='Email'
         value={email}
-        icon={<AtSymbolIcon height={16} />}
+        icon={
+          <AtSymbolIcon
+            height={24}
+            color='#808080'
+          />
+        }
         onChangeText={setEmail}
         error={emailError}
       />
@@ -128,7 +138,12 @@ const Register = () => {
       <Input
         placeholder='Password'
         value={password}
-        icon={<KeyIcon height={16} />}
+        icon={
+          <KeyIcon
+            height={24}
+            color='#808080'
+          />
+        }
         onChangeText={setPassword}
         secureTextEntry={true}
         error={passwordError}
@@ -137,14 +152,19 @@ const Register = () => {
       <Input
         placeholder='Confirm Password'
         value={confirmPassword}
-        icon={<KeyIcon height={16} />}
+        icon={
+          <KeyIcon
+            height={24}
+            color='#808080'
+          />
+        }
         onChangeText={setConfirmPassword}
         secureTextEntry={true}
         error={confirmPasswordError}
       />
 
       <View style={styles.linkContainer}>
-        <TouchableOpacity>
+        <TouchableOpacity onPress={() => navigation.navigate('auth/login')}>
           <ThemedText style={styles.linkText}>Back to Login</ThemedText>
         </TouchableOpacity>
       </View>
@@ -160,13 +180,14 @@ const Register = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    marginTop: 20,
     justifyContent: 'center',
     padding: 16,
   },
   logoContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 24,
+    marginBottom: 32,
   },
   logo: {
     width: 50,
@@ -180,6 +201,7 @@ const styles = StyleSheet.create({
     color: 'white',
   },
   title: {
+    paddingTop:10,
     fontSize: 32,
     fontWeight: 'semibold',
     textAlign: 'center',
