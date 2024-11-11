@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "shaina-app",
-    "slug": "shaina-app",
+    "slug": "phms",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -19,6 +19,13 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
+      },
+      "package": "com.capstonks2.phms",
+      "config": {
+        "googleMaps": {
+          "apiKey": "AIzaSyBiEejYn0WTm0Fxwc58ztsOl1btvFtlfmg"
+        },
+        "googleServicesFile": "./google-services.json"
       }
     },
     "web": {
@@ -26,11 +33,18 @@
       "output": "static",
       "favicon": "./assets/images/favicon.png"
     },
-    "plugins": [
-      "expo-router"
-    ],
+    "plugins": ["expo-router"],
     "experiments": {
       "typedRoutes": true
-    }
+    },
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "c8b5fd9a-74d1-44f3-a24c-879075f26bd4"
+      }
+    },
+    "owner": "capstonks2"
   }
 }

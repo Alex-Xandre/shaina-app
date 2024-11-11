@@ -112,7 +112,8 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     width: '100%',
-
+    position:"absolute",
+    top:30,
     zIndex: 1001,
   },
   appBar: {

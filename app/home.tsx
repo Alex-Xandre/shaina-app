@@ -1,26 +1,35 @@
-import React, { useEffect, useState } from 'react';
-import { StyleSheet, View, Text, Dimensions, TouchableOpacity } from 'react-native';
+import React, { useEffect, useRef, useState } from 'react';
+import { StyleSheet, View, Text, Dimensions, TouchableOpacity, ToastAndroid, Image, TextInput } from 'react-native';
 import * as Location from 'expo-location';
 import MapView, { Marker } from 'react-native-maps';
 import { getAttendance, registerAttendance } from '@/api/attendance.api';
 import { useAuth } from '@/state/AuthContext';
 import AppSidebar from '@/components/Sidebar';
-import { addAttendance, fetchAttendance } from '@/state/AuthReducer';
+import { addAttendance, fetchAttendance, fetchShifts } from '@/state/AuthReducer';
+import { getTasks } from '@/api/tasks.api';
+import { uploadFile } from '@/api/register.api';
+import * as ImagePicker from 'expo-image-picker';
+import * as FileSystem from 'expo-file-system';
+
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
 
 const Waiting_Driver_Screen = () => {
-  const { user, attendance, dispatch } = useAuth();
+  const { user, attendance, dispatch, shifts } = useAuth();
   const [currentLocation, setCurrentLocation] = useState<any>(null);
   const [initialRegion, setInitialRegion] = useState<any>(null);
   const [currentDate, setCurrentDate] = useState<string>('');
   const [data, setData] = useState<any>(null);
   const [attendanceStatus, setAttendanceStatus] = useState<string>('');
 
+  const [images, setImages] = useState('');
   useEffect(() => {
     const getUsers = async () => {
       const getAtt = await getAttendance();
       dispatch(fetchAttendance({ attendance: getAtt }));
+
+      const getAllShift = await getTasks();
+      dispatch(fetchShifts({ shift: getAllShift }));
     };
     getUsers();
   }, []);
@@ -71,6 +80,9 @@ const Waiting_Driver_Screen = () => {
       hour12: false,
     });
 
+    if (images === '') {
+      return ToastAndroid.show('Please Attach a picture of your location', ToastAndroid.SHORT);
+    }
     const newAttendanceData = {
       _id: 'new',
       userId: user._id,
@@ -78,6 +90,11 @@ const Waiting_Driver_Screen = () => {
       timeIn: currentTime,
       timeOut: '',
       status: 'present',
+      locationImage: images,
+      location: {
+        latitude: currentLocation.latitude,
+        longitude: currentLocation.longitude,
+      },
     };
 
     const res = await registerAttendance(newAttendanceData);
@@ -115,6 +132,32 @@ const Waiting_Driver_Screen = () => {
     return `${formattedHours}:${minutes} ${period}`;
   };
 
+  const today = new Date().toISOString().split('T')[0];
+  const targetDateFormatted = today.substring(5, 7) + '-' + today.substring(8, 10) + '-' + today.substring(0, 4);
+  const filteredShifts = shifts.filter((shift) => shift.date === targetDateFormatted);
+
+  const pickImage = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.All,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+
+    console.log('ImagePicker result:', result);
+
+    if (!result.canceled) {
+      try {
+        const uploadedUrl = await uploadFile(result.assets[0] as any);
+        setImages(uploadedUrl);
+      } catch (error) {
+        console.error('File upload failed:', error);
+      }
+    } else {
+      console.log('Image selection was canceled.');
+    }
+  };
+
   return (
     <View style={styles.container}>
       <AppSidebar />
@@ -140,33 +183,52 @@ const Waiting_Driver_Screen = () => {
           </MapView>
         </View>
       )}
-
-      <View style={styles.timeContainer}>
-        <View style={styles.timeBox}>
-          <Text style={styles.label}>Time-in: </Text>
-          <Text style={styles.time}>{data?.timeIn ? convertTo12HourFormat(data.timeIn) : 'Not clocked in yet'}</Text>
-          {attendanceStatus !== 'present' && (
-            <TouchableOpacity
-              style={styles.button}
-              onPress={handleTimeIn}
-            >
-              <Text style={styles.buttonText}>Time In</Text>
-            </TouchableOpacity>
-          )}
+      {filteredShifts.length > 0 && (
+        <TouchableOpacity
+          onPress={pickImage}
+          style={{ padding: 10, flexDirection: 'row', alignItems: 'center' }}
+        >
+          <Image
+            source={{
+              uri: images || 'https://res.cloudinary.com/dyhsose70/image/upload/v1696562163/avatar_ko5htr.png',
+            }}
+            style={{ width: 50, height: 50, marginRight: 10 }}
+          />
+          <Text>Upload Image for attendance</Text>
+        </TouchableOpacity>
+      )}
+      {filteredShifts.length === 0 ? (
+        <Text style={{ padding: 10, fontWeight: '700' }}>No Shift Found</Text>
+      ) : (
+        <View style={styles.timeContainer}>
+          <View style={styles.timeBox}>
+            <Text style={styles.label}>Time-in: </Text>
+            <Text style={styles.time}>{data?.timeIn ? convertTo12HourFormat(data.timeIn) : 'Not clocked in yet'}</Text>
+            {attendanceStatus !== 'present' && (
+              <TouchableOpacity
+                style={styles.button}
+                onPress={handleTimeIn}
+              >
+                <Text style={styles.buttonText}>Time In</Text>
+              </TouchableOpacity>
+            )}
+          </View>
+          <View style={styles.timeBox}>
+            <Text style={styles.label}>Time-out:</Text>
+            <Text style={styles.time}>
+              {data?.timeOut ? convertTo12HourFormat(data.timeOut) : 'Not clocked out yet'}
+            </Text>
+            {attendanceStatus === 'present' && data?.timeOut === '' ? (
+              <TouchableOpacity
+                style={styles.button}
+                onPress={handleTimeOut}
+              >
+                <Text style={styles.buttonText}>Time Out</Text>
+              </TouchableOpacity>
+            ) : null}
+          </View>
         </View>
-        <View style={styles.timeBox}>
-          <Text style={styles.label}>Time-out:</Text>
-          <Text style={styles.time}>{data?.timeOut ? convertTo12HourFormat(data.timeOut) : 'Not clocked out yet'}</Text>
-          {attendanceStatus === 'present' && data?.timeOut === '' ? (
-            <TouchableOpacity
-              style={styles.button}
-              onPress={handleTimeOut}
-            >
-              <Text style={styles.buttonText}>Time Out</Text>
-            </TouchableOpacity>
-          ) : null}
-        </View>
-      </View>
+      )}
     </View>
   );
 };
@@ -174,15 +236,17 @@ const Waiting_Driver_Screen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'white',
+
     paddingVertical: 18,
     width: '100%',
+    alignContent: 'flex-start',
   },
   header: {
     padding: 16,
     backgroundColor: '#f8f8f8',
     alignItems: 'center',
     justifyContent: 'center',
+    marginTop: 65,
   },
   dateText: {
     fontSize: 18,
@@ -190,6 +254,7 @@ const styles = StyleSheet.create({
   },
   containerMap: {
     width: '100%',
+
     height: '50%',
     position: 'relative',
   },

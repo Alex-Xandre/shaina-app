@@ -8,6 +8,7 @@ export const loginUser = async (data: any) => {
     const response = await axios.post(`${API_ENDPOINT}/api/auth/login`, data);
     return response.data;
   } catch (error) {
+    console.log(error)
     return handleError(error);
   }
 };
