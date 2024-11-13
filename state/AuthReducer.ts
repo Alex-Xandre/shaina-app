@@ -79,9 +79,29 @@ const authSlice = createSlice({
         state.attendance.push(newAttendance);
       }
     },
+    addShift: (state, action: PayloadAction<ShiftType>) => {
+      const newShift = action.payload;
+
+      const existingShiftIndex = state.shifts.findIndex((shift) => shift._id === newShift._id);
+
+      if (existingShiftIndex !== -1) {
+        state.shifts[existingShiftIndex] = { ...state.shifts[existingShiftIndex], ...newShift };
+      } else {
+        state.shifts.push(newShift);
+      }
+    },
   },
 });
 
-export const { login, signout, fetchUsers, addUsers, fetchShifts, fetchLeaves, fetchAttendance, addAttendance } =
-  authSlice.actions;
+export const {
+  login,
+  signout,
+  fetchUsers,
+  addUsers,
+  fetchShifts,
+  fetchLeaves,
+  fetchAttendance,
+  addAttendance,
+  addShift,
+} = authSlice.actions;
 export default authSlice.reducer;

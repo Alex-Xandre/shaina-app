@@ -85,7 +85,7 @@ const styles = StyleSheet.create({
   container: {
     position: 'absolute',
     top: 0,
-    width:"100%"
+    width: '100%',
   },
   label: {
     marginBottom: 8,
@@ -94,17 +94,17 @@ const styles = StyleSheet.create({
     zIndex: 0,
   },
   inputContainer: {
-    paddingVertical: 12,
+    paddingVertical: 0,
+    fontSize: 12,
     paddingHorizontal: 10,
-    borderRadius: 8,
+    borderRadius: 4,
     backgroundColor: '#fff',
     flexDirection: 'row',
     alignItems: 'center',
     zIndex: 0,
   },
   normalBorder: {
-    borderWidth: 1,
-    borderColor: '#ccc',
+    backgroundColor: '#f0f0f0',
     zIndex: 0,
   },
   errorBorder: {
@@ -128,8 +128,8 @@ const styles = StyleSheet.create({
     top: '100%',
     left: 0,
     right: 0,
-    backgroundColor: "white",
-    borderRadius: 8,
+    backgroundColor: 'white',
+    borderRadius: 4,
     elevation: 5,
     zIndex: 10000000,
   },
@@ -143,8 +143,8 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   option: {
-    paddingVertical: 10,
-    paddingHorizontal: 15,
+    paddingVertical: 3,
+    paddingHorizontal: 5,
     borderBottomWidth: 1,
     borderBottomColor: '#ccc',
   },

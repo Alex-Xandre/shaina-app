@@ -6,6 +6,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { AppDispatch, RootState } from '@/store';
 import { AttendanceType, LeaveType, ShiftType, UserTypes } from '@/types';
 import { getUser } from '@/api/user.api';
+import { useNavigation } from 'expo-router';
 
 interface AuthContextProps {
   children: ReactNode;
@@ -27,6 +28,7 @@ export const AuthContext = createContext<
 
 export const AuthContextProvider = ({ children }: AuthContextProps) => {
   const dispatch = useDispatch();
+  const navigation:any = useNavigation()
   const { isLoggedIn, user, token, allUser, shifts, attendance, leave } = useSelector((state: RootState) => state.auth);
 
   React.useEffect(() => {
@@ -37,6 +39,7 @@ export const AuthContextProvider = ({ children }: AuthContextProps) => {
           const res = await getUser();
           dispatch(login({ user: res, token: storedToken }));
         } else {
+          navigation.navigate("auth/login")
           dispatch(signout());
         }
       } catch (error) {

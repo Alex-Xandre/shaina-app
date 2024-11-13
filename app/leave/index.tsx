@@ -10,6 +10,7 @@ import { useEffect, useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import { PlusIcon } from 'react-native-heroicons/outline';
+import Card from './Card';
 
 const Index = () => {
   const headers = [
@@ -48,7 +49,19 @@ const Index = () => {
 
         {leave.length === 0 && <Text>List Empty</Text>}
 
-        <Table
+        <ScrollView
+          style={{ paddingRight: 10, flex: 1, backgroundColor: '#fff' }}
+          showsVerticalScrollIndicator={false}
+        >
+          {leave.length === 0 ? <Text>Attendance List Empty</Text> :
+          
+          leave.map((x) => {
+            return <Card data={x} />;
+          })}
+        </ScrollView>
+
+
+        {/* <Table
           itemsPerPage={12}
           handleSearch={(e) => setSearchId(e.target.value)}
           title='Leaves'
@@ -69,7 +82,7 @@ const Index = () => {
           onRemove={function (): void {
             throw new Error('Function not implemented.');
           }}
-        />
+        /> */}
       </View>
     </View>
   );
@@ -78,7 +91,7 @@ const Index = () => {
 const styles = StyleSheet.create({
   title: {
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: '700',
   },
   tableContainer: {
     marginTop: 20,
@@ -98,6 +111,7 @@ const styles = StyleSheet.create({
     margin: 0,
     position: 'relative',
     paddingRight: 10,
+    marginTop:100
   },
 
   header: {

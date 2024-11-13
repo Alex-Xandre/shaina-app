@@ -14,6 +14,7 @@ import { getAttendance } from '@/api/attendance.api';
 import { fetchAttendance, fetchShifts, fetchUsers } from '@/state/AuthReducer';
 import { getTasks } from '@/api/tasks.api';
 import { getAllUser } from '@/api/get.info.api';
+import Card from './Card';
 const index = () => {
   const headers = [
     {
@@ -167,6 +168,7 @@ const index = () => {
     return [];
   };
 
+  const attendanceData = attendance.filter((x) => (status === 'all' ? x : x.status === status));
   return (
     <View style={styles.container}>
       <AppSidebar />
@@ -186,23 +188,29 @@ const index = () => {
             zIndex: 1000,
           }}
         >
-          <View style={styles.dropdownContainer}>
-            <Dropdown
-              value={status}
-              options={['All', 'Present', 'Absent', 'Late', 'Halfday', 'Leave'].map((x) => ({
-                value: x.toLowerCase(),
-                label: x.toUpperCase(),
-              }))}
-              id='status-dropdown'
-              onChange={(e) => setStatus(e as string)}
-            />
-          </View>
           <View style={styles.datePickerContainer}>
-            <TouchableOpacity onPress={() => setShowStartDatePicker(true)}>
+            <View style={styles.dropdownContainer}>
+              <Dropdown
+                value={status}
+                options={['All', 'Present', 'Absent', 'Late', 'Halfday', 'Leave'].map((x) => ({
+                  value: x.toLowerCase(),
+                  label: x.toUpperCase(),
+                }))}
+                id='status-dropdown'
+                onChange={(e) => setStatus(e as string)}
+              />
+            </View>
+            <TouchableOpacity
+              onPress={() => setShowStartDatePicker(true)}
+              style={{ marginTop: 30 }}
+            >
               <Text style={styles.dateText}>{startDate}</Text>
             </TouchableOpacity>
-            <Text style={styles.dateSeparator}>to</Text>
-            <TouchableOpacity onPress={() => setShowEndDatePicker(true)}>
+
+            <TouchableOpacity
+              onPress={() => setShowEndDatePicker(true)}
+              style={{ marginTop: 30 }}
+            >
               <Text style={styles.dateText}>{endDate}</Text>
             </TouchableOpacity>
             {/* <TouchableOpacity style={styles.addButton}>
@@ -257,7 +265,17 @@ const index = () => {
           </View>
         </View>
 
-        <Table
+        <ScrollView
+          style={{ paddingRight: 10, flex: 1, backgroundColor: '#fff' }}
+          showsVerticalScrollIndicator={false}
+        >
+          {attendanceData.length === 0 ? <Text>Attendance List Empty</Text> :
+          
+          attendanceData.map((x) => {
+            return <Card data={x} />;
+          })}
+        </ScrollView>
+        {/* <Table
           itemsPerPage={12}
           handleBatch={
             isAttendance &&
@@ -316,7 +334,7 @@ const index = () => {
             //   handleSubmit();
             // }
           }}
-        />
+        /> */}
       </View>
     </View>
   );
@@ -333,6 +351,7 @@ const styles = StyleSheet.create({
     height: '90%',
     paddingLeft: 15,
     margin: 0,
+    marginTop: 100,
     position: 'relative',
   },
 
@@ -348,8 +367,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     position: 'relative',
     zIndex: 1000,
-    width: '100%',
-    marginTop: 30,
+    flex: 1,
   },
   dateInput: {
     borderWidth: 1,
@@ -375,8 +393,7 @@ const styles = StyleSheet.create({
     cursor: 'pointer',
   },
   activeTab: {
-    borderBottomWidth: 2,
-    borderBottomColor: '#007bff',
+    backgroundColor:"#ccc"
   },
   button: {
     flexDirection: 'row',
@@ -403,21 +420,20 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: '700',
   },
   datePickerContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     position: 'relative',
-    marginTop: 80,
+
     gap: 12,
   },
   dateText: {
-    borderWidth: 1,
-    borderColor: '#ccc',
-    padding: 10,
+    backgroundColor: '#f0f0f0',
+    paddingHorizontal: 5,
+    paddingVertical: 4,
     borderRadius: 5,
-    marginHorizontal: 5,
   },
 });
 

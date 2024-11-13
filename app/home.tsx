@@ -5,17 +5,21 @@ import MapView, { Marker } from 'react-native-maps';
 import { getAttendance, registerAttendance } from '@/api/attendance.api';
 import { useAuth } from '@/state/AuthContext';
 import AppSidebar from '@/components/Sidebar';
-import { addAttendance, fetchAttendance, fetchShifts } from '@/state/AuthReducer';
+import { addAttendance, fetchAttendance, fetchShifts, login, signout } from '@/state/AuthReducer';
 import { getTasks } from '@/api/tasks.api';
 import { uploadFile } from '@/api/register.api';
 import * as ImagePicker from 'expo-image-picker';
 import * as FileSystem from 'expo-file-system';
+import { FolderIcon } from 'react-native-heroicons/outline';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { getUser } from '@/api/get.info.api';
+import { useNavigation } from 'expo-router';
 
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
 
 const Waiting_Driver_Screen = () => {
-  const { user, attendance, dispatch, shifts } = useAuth();
+  const { user, attendance, dispatch, shifts, isLoggedIn } = useAuth();
   const [currentLocation, setCurrentLocation] = useState<any>(null);
   const [initialRegion, setInitialRegion] = useState<any>(null);
   const [currentDate, setCurrentDate] = useState<string>('');
@@ -23,6 +27,28 @@ const Waiting_Driver_Screen = () => {
   const [attendanceStatus, setAttendanceStatus] = useState<string>('');
 
   const [images, setImages] = useState('');
+
+  const navigation: any = useNavigation();
+  React.useEffect(() => {
+    const loadAuthState = async () => {
+      try {
+        const storedToken = await AsyncStorage.getItem('token');
+        if (storedToken) {
+          const res = await getUser();
+          dispatch(login({ user: res, token: storedToken }));
+        } else {
+          navigation.navigate('auth/login');
+          dispatch(signout());
+        }
+      } catch (error) {
+        console.error('Error loading authentication state:', error);
+        dispatch(signout());
+      }
+    };
+
+    loadAuthState();
+  }, [dispatch, isLoggedIn]);
+
   useEffect(() => {
     const getUsers = async () => {
       const getAtt = await getAttendance();
@@ -33,6 +59,8 @@ const Waiting_Driver_Screen = () => {
     };
     getUsers();
   }, []);
+
+  console.log(shifts, 'hey');
 
   useEffect(() => {
     const getLocation = async () => {
@@ -134,7 +162,9 @@ const Waiting_Driver_Screen = () => {
 
   const today = new Date().toISOString().split('T')[0];
   const targetDateFormatted = today.substring(5, 7) + '-' + today.substring(8, 10) + '-' + today.substring(0, 4);
-  const filteredShifts = shifts.filter((shift) => shift.date === targetDateFormatted);
+  67;
+  const filteredShifts =
+    shifts && Array.isArray(shifts) ? shifts.filter((shift) => shift.date === targetDateFormatted) : [];
 
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -143,8 +173,6 @@ const Waiting_Driver_Screen = () => {
       aspect: [4, 3],
       quality: 1,
     });
-
-    console.log('ImagePicker result:', result);
 
     if (!result.canceled) {
       try {
@@ -186,14 +214,18 @@ const Waiting_Driver_Screen = () => {
       {filteredShifts.length > 0 && (
         <TouchableOpacity
           onPress={pickImage}
-          style={{ padding: 10, flexDirection: 'row', alignItems: 'center' }}
+          style={{ padding: 13, gap: 3, flexDirection: 'row', alignItems: 'center' }}
         >
-          <Image
-            source={{
-              uri: images || 'https://res.cloudinary.com/dyhsose70/image/upload/v1696562163/avatar_ko5htr.png',
-            }}
-            style={{ width: 50, height: 50, marginRight: 10 }}
-          />
+          {images ? (
+            <Image
+              source={{
+                uri: images,
+              }}
+              style={{ width: 50, height: 50, marginRight: 10 }}
+            />
+          ) : (
+            <FolderIcon color='#000 ' />
+          )}
           <Text>Upload Image for attendance</Text>
         </TouchableOpacity>
       )}
@@ -236,7 +268,6 @@ const Waiting_Driver_Screen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-
     paddingVertical: 18,
     width: '100%',
     alignContent: 'flex-start',
@@ -246,7 +277,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#f8f8f8',
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: 65,
+    marginTop: 80,
   },
   dateText: {
     fontSize: 18,

@@ -5,7 +5,7 @@ import { useNavigation } from 'expo-router';
 import { View, Text, Image, StyleSheet } from 'react-native';
 import { useRoute } from '@react-navigation/native';
 import Button from '@/components/Button';
-import logo from '../assets/images/logo.png';
+import logo from '../assets/images/PHMI.jpg';
 
 const Index = () => {
   const nav: any = useNavigation();
@@ -17,9 +17,7 @@ const Index = () => {
           style={styledComponents.logo}
         />
         <View style={styledComponents.textContainer}>
-          <ThemedText style={styledComponents.text}>Police Hotline</ThemedText>
-          <ThemedText style={styledComponents.text}>Movement</ThemedText>
-          <ThemedText style={styledComponents.text}>Incorporated</ThemedText>
+          <ThemedText style={styledComponents.text}>PHMI</ThemedText>
         </View>
         <Button
           text='Login'

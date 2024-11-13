@@ -25,6 +25,7 @@ const NewLeave = () => {
     date: '',
     userId: '',
     status: false,
+    endDate: '',
   });
 
   const { user, dispatch } = useAuth();
@@ -40,41 +41,34 @@ const NewLeave = () => {
     setEndDate(today);
   }, []);
 
-
-
-const getDateRangeArray = (startDateStr:string, endDateStr:string) => {
+  const getDateRangeArray = (startDateStr: string, endDateStr: string) => {
     const dates = [];
-    
+
     let startDate = new Date(startDateStr);
     let endDate = new Date(endDateStr);
-  
 
     if (startDate > endDate) {
       [startDate, endDate] = [endDate, startDate];
     }
-  
-    let currentDate = new Date(startDate); 
-  
+
+    let currentDate = new Date(startDate);
+
     while (currentDate <= endDate) {
-      dates.push(formatDate(new Date(currentDate))); 
-      currentDate.setDate(currentDate.getDate() + 1); 
+      dates.push(formatDate(new Date(currentDate)));
+      currentDate.setDate(currentDate.getDate() + 1);
     }
-  
+
     return dates;
   };
-  
+
   const navigate: any = useNavigation();
 
-
   const handleSubmit = async () => {
-    const dateRangeArray = getDateRangeArray(startDate, endDate)
-
-    const promises = dateRangeArray.map(async (item) => {
-      return await registerLeave({
-        ...formData,
-        status: formData.status.toString() === 'Confirmed' ? true : false,
-        date: item,
-      });
+    await registerLeave({
+      ...formData,
+      status: formData.status.toString() === 'Confirmed' ? true : false,
+      date: startDate,
+      endDate: endDate,
     });
 
     // // const promisesAttendance = dateRangeArray.map(async (item) => {
@@ -88,7 +82,7 @@ const getDateRangeArray = (startDateStr:string, endDateStr:string) => {
     // //   });
     // // });
 
-     await Promise.all(promises);
+    // await Promise.all(promises);
     // // await Promise.all(promisesAttendance);
 
     setTimeout(async () => {
@@ -103,16 +97,6 @@ const getDateRangeArray = (startDateStr:string, endDateStr:string) => {
       <AppSidebar />
       <View style={styles.content}>
         <Text style={styles.title}> New Leave</Text>
-
-        <View style={styles.datePickerContainer}>
-          <TouchableOpacity onPress={() => setShowStartDatePicker(true)}>
-            <Text style={styles.dateText}>{startDate}</Text>
-          </TouchableOpacity>
-          <Text style={styles.dateSeparator}>to</Text>
-          <TouchableOpacity onPress={() => setShowEndDatePicker(true)}>
-            <Text style={styles.dateText}>{endDate}</Text>
-          </TouchableOpacity>
-        </View>
 
         {showStartDatePicker && (
           <DateTimePicker
@@ -141,25 +125,49 @@ const getDateRangeArray = (startDateStr:string, endDateStr:string) => {
           />
         )}
         <View style={styles.form}>
-          <View style={{ width: '100%', position: 'relative', zIndex: 10000 }}>
-            <Dropdown
-              label='Leave Type'
-              disabled={formData.status === true}
-              value={formData.leaveType}
-              options={[
-                'Service Incentive Leave (SIL)',
-                'Maternity Leave',
-                'Paternity Leave',
-                'Parental Leave',
-                'Sick Leave',
-              ].map((x) => {
-                return {
-                  value: x,
-                  label: x.toUpperCase(),
-                };
-              })}
-              onChange={(e) => setFormData({ ...formData, leaveType: e as string })}
-            />
+          <View style={{ width: '100%', position: 'relative', zIndex: 10000, marginTop: -50 }}>
+            <View style={styles.datePickerContainer}>
+              <View
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  position: 'relative',
+                  zIndex: 1000,
+                  flex: 1,
+                }}
+              >
+                <Dropdown
+                  label='Leave Type'
+                  disabled={formData.status === true}
+                  value={formData.leaveType}
+                  options={[
+                    'Service Incentive Leave (SIL)',
+                    'Maternity Leave',
+                    'Paternity Leave',
+                    'Parental Leave',
+                    'Sick Leave',
+                  ].map((x) => {
+                    return {
+                      value: x,
+                      label: x.toUpperCase(),
+                    };
+                  })}
+                  onChange={(e) => setFormData({ ...formData, leaveType: e as string })}
+                />
+              </View>
+              <TouchableOpacity
+                onPress={() => setShowStartDatePicker(true)}
+                style={{ marginTop: 80 }}
+              >
+                <Text style={styles.dateText}>{startDate}</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => setShowEndDatePicker(true)}
+                style={{ marginTop: 80 }}
+              >
+                <Text style={styles.dateText}>{endDate}</Text>
+              </TouchableOpacity>
+            </View>
           </View>
           <Button
             text='Submit Leave Request'
@@ -180,6 +188,7 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   content: {
+    marginTop: 100,
     height: '90%',
     margin: 0,
     paddingHorizontal: 10,
@@ -235,15 +244,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     position: 'relative',
-    marginTop: 10,
     gap: 12,
   },
   dateText: {
-    borderWidth: 1,
-    borderColor: '#ccc',
-    padding: 10,
+    backgroundColor: '#f0f0f0',
+    paddingHorizontal: 5,
+    paddingVertical: 4,
     borderRadius: 5,
-    marginHorizontal: 5,
   },
   dateSeparator: {
     marginHorizontal: 4,

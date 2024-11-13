@@ -1,32 +1,18 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
-import DateTimePicker from '@react-native-community/datetimepicker';
-import AppSidebar from '@/components/Sidebar';
-import { useAuth } from '@/state/AuthContext';
-import { PlusIcon } from 'react-native-heroicons/outline';
-import { Container } from '@/components/helpers/Container';
-import { ScrollView, TouchableOpacity } from 'react-native-gesture-handler';
-import Table from '@/components/Table';
-import { convertTo12HourFormat } from '@/components/helpers/formatto12Hours';
-import { fetchShifts } from '@/state/AuthReducer';
 import { getTasks } from '@/api/tasks.api';
 import Button from '@/components/Button';
+import AppSidebar from '@/components/Sidebar';
+import { useAuth } from '@/state/AuthContext';
+import { fetchShifts } from '@/state/AuthReducer';
+import { useNavigation } from 'expo-router';
+import React, { useEffect } from 'react';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import Card from './Card';
 
-const headers = [
-  { header: 'User ID', accessor: 'userId' },
-  { header: 'Name', accessor: 'name' },
-  { header: 'Date', accessor: 'date' },
-  { header: 'Time In', accessor: 'timeIn' },
-  { header: 'Time Out', accessor: 'timeOut' },
-  { header: 'Work Hours', accessor: 'dutyHours' },
-];
 const Index = () => {
-  const { shifts, allUser, dispatch } = useAuth();
-  const [startDate, setStartDate] = useState(new Date(2024, 8, 1));
-  const [endDate, setEndDate] = useState(new Date());
-  const [showStartDatePicker, setShowStartDatePicker] = useState(false);
-  const [showEndDatePicker, setShowEndDatePicker] = useState(false);
+  const nav: any = useNavigation();
+  const { user, dispatch, shifts } = useAuth();
 
+  //get shiffts
   useEffect(() => {
     const getUsers = async () => {
       const getAllShift = await getTasks();
@@ -36,149 +22,114 @@ const Index = () => {
     getUsers();
   }, []);
 
-  // useEffect(() => {
-  //   const today = new Date();
-  //   const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
-  //   const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+  
 
-  //   setStartDate(startOfMonth);
-  //   setEndDate(endOfMonth);
-  // }, []);
-
-  const filteredShifts = shifts
-    .filter((shift) => {
-      const shiftDate = new Date(shift.date);
-      return shiftDate >= startDate && shiftDate <= endDate;
-    })
-    //@ts-ignore
-    .sort((a, b) => new Date(a.date) - new Date(b.date));
-  const [searchId, setSearchId] = useState('');
   return (
-    <ScrollView>
+    <View style={styles.container}>
       <AppSidebar />
-      <View style={Container as any}>
+      <View style={styles.content}>
         <View style={styles.header}>
-          <Text style={styles.title}>List of Shifts</Text> <Button text='Attendance' />
+          <Text style={styles.title}>List of Shifts</Text>
+          {user.role !== 'user' && (
+            <Button
+              text='Shift'
+              onClick={() => nav.navigate('shift/new')}
+              customStyle={{ marginRight: 10, paddingRight: 15 }}
+            />
+          )}
         </View>
-        <View style={styles.datePickerContainer}>
-          <TouchableOpacity onPress={() => setShowStartDatePicker(true)}>
-            <Text style={styles.dateText}>{startDate.toLocaleDateString()}</Text>
-          </TouchableOpacity>
-          <Text style={styles.dateSeparator}>to</Text>
-          <TouchableOpacity onPress={() => setShowEndDatePicker(true)}>
-            <Text style={styles.dateText}>{endDate.toLocaleDateString()}</Text>
-          </TouchableOpacity>
-        </View>
-        {/* Start Date Picker */}
-        {showStartDatePicker && (
-          <DateTimePicker
-            value={startDate}
-            mode='date'
-            display='default'
-            onChange={(event, date) => {
-              if (event.type === 'set') {
-                setStartDate(date || startDate);
-              }
-              setShowStartDatePicker(false);
-            }}
-          />
-        )}
 
-        {/* End Date Picker */}
-        {showEndDatePicker && (
-          <DateTimePicker
-            value={endDate}
-            mode='date'
-            display='default'
-            onChange={(event, date) => {
-              if (event.type === 'set') {
-                setEndDate(date || endDate);
-              }
-              setShowEndDatePicker(false);
-            }}
-          />
-        )}
+        <ScrollView
+          style={{ paddingRight: 10, flex: 1, backgroundColor: '#fff' }}
+          showsVerticalScrollIndicator={false}
+        >
+          {shifts.length === 0 ? <Text>Attendance List Empty</Text> :
+          
+          shifts.map((x) => {
+            return <Card data={x} />;
+          })}
+        </ScrollView>
 
-        <View style={styles.tableContainer}>
-          <Table
-            itemsPerPage={12}
-            title='Attendance'
-            data={filteredShifts
-
-              .map((x) => {
-                const user = allUser.find((y) => y._id === x.userId);
-
-                const hours = Math.floor(x.dutyHours / 60);
-                const minutes = x.dutyHours % 60;
-
-                return {
-                  _id: x._id,
-                  userId: user && user.userId,
-                  name: user && `${user.firstName} ${user.lastName}`,
-                  date: x.date,
-                  timeIn: convertTo12HourFormat(x.timeIn),
-                  timeOut: convertTo12HourFormat(x.timeOut),
-                  dutyHours: `${hours}:${String(minutes).padStart(2, '0')} Hours`,
-                };
-              })
-              ?.filter((x) => x?.userId?.toLowerCase().includes(searchId?.toLowerCase()))}
-            handleSearch={(e) => setSearchId(e.target.value)}
-            columns={headers as any}
-            onEdit={(item) => console.log('first')}
-            onRemove={function (): void {
-              throw new Error('Function not implemented.');
-            }}
-          />
-        </View>
       </View>
-    </ScrollView>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
+  title: {
+    fontSize: 16,
+    fontWeight: '700',
+  },
   tableContainer: {
     marginTop: 20,
     marginRight: 20,
     backgroundColor: 'white',
     borderRadius: 10,
   },
+  container: {
+    flex: 1,
+    backgroundColor: 'white',
+    paddingVertical: 18,
+    width: '100%',
+  },
+  content: {
+    height: '90%',
+    paddingLeft: 15,
+    margin: 0,
+    position: 'relative',
+    paddingRight: 10,
+    marginTop: 100,
+  },
+
   header: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
+    justifyContent: 'space-between',
+
     paddingRight: 10,
   },
-  title: {
-    fontSize: 16,
-    fontWeight: '600',
+  headerText: {
+    fontWeight: '800',
   },
-  datePickerContainer: {
-    flexDirection: 'row',
+  chevron: {
+    marginHorizontal: 8,
+  },
+  headerSubText: {
+    opacity: 0.7,
+  },
+  form: {
+    padding: 16,
+    borderRadius: 8,
+    shadowColor: '#000',
+    shadowOpacity: 0.2,
+    shadowRadius: 1,
+    flexGrow: 1,
+  },
+  avatarContainer: {
     alignItems: 'center',
-    marginTop: 10,
-    gap: 12,
+    marginBottom: 16,
   },
-  dateText: {
-    borderWidth: 1,
+  avatar: {
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    marginBottom: 8,
+    opacity: 0.7,
+  },
+  hiddenInput: {
+    display: 'none',
+  },
+  input: {
+    borderBottomWidth: 1,
     borderColor: '#ccc',
-    padding: 10,
-    borderRadius: 5,
-    marginHorizontal: 5,
+    marginBottom: 16,
+    padding: 8,
   },
-  dateSeparator: {
-    marginHorizontal: 5,
-  },
-  addButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#007bff',
-    padding: 5,
-    paddingHorizontal: 10,
-    borderRadius: 5,
-  },
-  buttonText: {
-    color: 'white',
-    marginLeft: 5,
+  note: {
+    fontSize: 12,
+    marginVertical: 16,
+    color: '#666',
+    marginTop: 100,
   },
 });
 
