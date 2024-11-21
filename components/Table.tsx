@@ -1,12 +1,12 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { ReactNode, useState } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Dimensions } from 'react-native';
 import Input from './Input';
 import { TableProps } from '@/types';
 import { roleColor } from './helpers/statusColor';
 import { MagnifyingGlassIcon } from 'react-native-heroicons/outline';
 import { useAuth } from '@/state/AuthContext';
+
+const { width: screenWidth } = Dimensions.get('window');
 
 const Table = <T,>({
   data,
@@ -30,7 +30,98 @@ const Table = <T,>({
   handleBatch?: ReactNode;
   submitSelected?: (e: any) => void;
   notSearch?: boolean;
+  title?: string;
 }): JSX.Element => {
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      padding: 5,
+      marginTop: title === 'Employees' ? 60 : 10,
+    },
+    nav: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      marginBottom: 10,
+    },
+    title: {
+      fontWeight: '600',
+      marginTop: 15,
+    },
+    count: {
+      backgroundColor: '#e0e0e0',
+      paddingHorizontal: 4,
+      borderRadius: 4,
+    },
+    scrollContainer: {
+      flex: 1,
+    },
+    list: {
+      flex: 1,
+    },
+    card: {
+      backgroundColor: '#fff',
+      borderRadius: 8,
+      padding: 15,
+      marginBottom: 10,
+      borderWidth: 1,
+      borderColor: '#ccc',
+    },
+    cardHeader: {
+      marginBottom: 10,
+    },
+    cardItem: {
+      marginBottom: 5,
+    },
+    cardLabel: {
+      fontWeight: 'bold',
+    },
+    cardValue: {
+      color: '#333',
+      fontSize: 14,
+    },
+    actions: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      marginTop: 10,
+    },
+    actionButton: {
+      padding: 8,
+      backgroundColor: '#007bff',
+      borderRadius: 5,
+    },
+    actionText: {
+      color: '#fff',
+      fontSize: 14,
+    },
+    pagination: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      marginTop: 10,
+      marginBottom: 5,
+    },
+    pageButton: {
+      color: '#007bff',
+      fontSize: 14,
+    },
+    pageInfo: {
+      marginHorizontal: 10,
+    },
+    noData: {
+      textAlign: 'center',
+      padding: 20,
+    },
+    batchButton: {
+      backgroundColor: '#fff',
+      padding: 10,
+      borderRadius: 5,
+      alignItems: 'center',
+      marginTop: 10,
+    },
+    disabled: {
+      color: 'gray',
+    },
+  });
+
   const [currentPage, setCurrentPage] = useState(1);
   const totalPages = Math.ceil(data.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
@@ -57,97 +148,76 @@ const Table = <T,>({
 
   return (
     <View style={styles.container}>
-      <View style={styles.nav}>
-        {title && (
-          <Text style={styles.title}>
-            <Text style={styles.count}>{data.length}</Text> All {title}
-          </Text>
-        )}
-        {!notSearch && user.role !== 'user' && (
-          <Input
-            placeholder='Officer ID'
-            icon={<MagnifyingGlassIcon />}
-            onChange={(e) => handleSearch && handleSearch(e)}
-          />
-        )}
-      </View>
+      {!notSearch && user.role !== 'user' && (
+        <Input
+          placeholder='Officer ID'
+          icon={<MagnifyingGlassIcon color='#ccc' />}
+          onChangeText={(text) => {
+            console.log(text);
+            if (handleSearch) 
+              handleSearch(text);
+              1;
+            }
+          }}
+        />
+      )}
 
       <ScrollView
-        horizontal
         style={styles.scrollContainer}
+        showsHorizontalScrollIndicator={false}
       >
-        <View style={styles.table}>
-          <View style={styles.header}>
-            {handleBatch && (
-              <View style={styles.cell}>
-                <TouchableOpacity
-                  onPress={() => {
-                    if (selectedRows.length === data.length) {
-                      setSelectedRows([]);
-                    } else {
-                      const allIds = data.map((row: any) => row._id);
-                      setSelectedRows(allIds);
-                    }
-                  }}
-                >
-                  <Text>{selectedRows.length === data.length ? '☑️' : '☐'}</Text>
-                </TouchableOpacity>
-              </View>
-            )}
-            {columns.map((column, index) => (
-              <Text
-                key={index}
-                style={styles.headerCell}
-              >
-                {column.header}
-              </Text>
-            ))}
-            {user.role !== 'user' && <Text style={styles.headerCell}>Actions</Text>}
-          </View>
-
+        <View style={styles.list}>
           {currentItems.length === 0 ? (
             <Text style={styles.noData}>No Data Found</Text>
           ) : (
             currentItems.map((row, rowIndex) => (
               <View
                 key={rowIndex}
-                style={styles.row}
+                style={styles.card}
               >
-                {handleBatch && (
-                  <View style={styles.cell}>
-                    <TouchableOpacity onPress={() => toggleRowSelection((row as any)._id)}>
-                      <Text>{selectedRows.includes((row as any)._id) ? '☑️' : '☐'}</Text>
-                    </TouchableOpacity>
-                  </View>
-                )}
-                {columns.map((column, columnIndex) => (
-                  <Text
-                    key={columnIndex}
-                    style={styles.cell}
-                  >
-                    <Text
-                      style={{
-                        backgroundColor: title === 'applicant' ? '#f0f0f0' : 'transparent',
-                        color:
-                          title === 'User'
-                            ? roleColor[
-                                column.render ? column.render(row[column.accessor], row) : (row[column.accessor] as any)
-                              ]
-                            : '#000',
-                      }}
+                <View style={styles.cardHeader}>
+                  {columns.map((column, columnIndex) => (
+                    <View
+                      key={columnIndex}
+                      style={styles.cardItem}
                     >
-                      {column.render ? column.render(row[column.accessor], row) : (row[column.accessor] as string)}
-                    </Text>
-                  </Text>
-                ))}
+                      <Text style={styles.cardLabel}>{column.header}:</Text>
+                      <Text
+                        style={[
+                          styles.cardValue,
+                          {
+                            backgroundColor: title === 'applicant' ? '#f0f0f0' : 'transparent',
+                            color:
+                              title === 'User'
+                                ? roleColor[
+                                    column.render
+                                      ? column.render(row[column.accessor], row)
+                                      : (row[column.accessor] as any)
+                                  ]
+                                : '#000',
+                          },
+                        ]}
+                      >
+                        {column.render ? column.render(row[column.accessor], row) : (row[column.accessor] as string)}
+                      </Text>
+                    </View>
+                  ))}
+                </View>
+
                 {user.role !== 'user' && (
-                  <View style={styles.cell}>
-                    <TouchableOpacity onPress={() => onEdit(row)}>
+                  <View style={styles.actions}>
+                    <TouchableOpacity
+                      onPress={() => onEdit(row)}
+                      style={styles.actionButton}
+                    >
                       <Text style={styles.actionText}>View</Text>
                     </TouchableOpacity>
                     {isPay && (
-                      <TouchableOpacity onPress={() => onViewPayment && onViewPayment(row)}>
-                        <Text style={styles.actionText}>{(row as any)?.salaryIsPaid ? 'Paid' : 'Mark as paid'}</Text>
+                      <TouchableOpacity
+                        onPress={() => onViewPayment && onViewPayment(row)}
+                        style={styles.actionButton}
+                      >
+                        <Text style={styles.actionText}>{(row as any)?.salaryIsPaid ? 'Paid' : 'Mark as Paid'}</Text>
                       </TouchableOpacity>
                     )}
                   </View>
@@ -194,94 +264,5 @@ const Table = <T,>({
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 10,
-  },
-  nav: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 10,
-  },
-  title: {
-    fontWeight: '600',
-    marginTop: 15,
-  },
-  count: {
-    backgroundColor: '#e0e0e0',
-    paddingHorizontal: 4,
-    borderRadius: 4,
-  },
-  scrollContainer: {
-    flex: 1,
-  },
-  table: {
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 8,
-    overflow: 'hidden',
-
-    width: 1000,
-  },
-  header: {
-    flexDirection: 'row',
-    backgroundColor: '#007bff',
-    padding: 10,
-  },
-  headerCell: {
-    flex: 1,
-    color: '#fff',
-    fontWeight: 'bold',
-    textAlign: 'left',
-  },
-  row: {
-    flexDirection: 'row',
-    borderBottomWidth: 1,
-    borderBottomColor: '#ccc',
-    padding: 10,
-  },
-  cell: {
-    display: 'flex',
-    flex: 1,
-
-    textAlign: 'left',
-  },
-  actions: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    alignItems: 'center',
-  },
-  actionText: {
-    color: '#007bff',
-  },
-  pagination: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: 10,
-  },
-  pageButton: {
-    color: '#007bff',
-  },
-  pageInfo: {
-    marginHorizontal: 10,
-  },
-  noData: {
-    textAlign: 'center',
-    padding: 20,
-    flex: 1,
-  },
-  batchButton: {
-    backgroundColor: '#fff',
-    padding: 10,
-    borderRadius: 5,
-    alignItems: 'center',
-    marginTop: 10,
-  },
-  disabled: {
-    color: 'gray',
-  },
-});
 
 export default Table;

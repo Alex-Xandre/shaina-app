@@ -21,7 +21,7 @@ const Index = () => {
     { header: 'Status', accessor: 'status' },
   ];
 
-  const { allUser, leave, dispatch } = useAuth();
+  const { allUser, leave, dispatch, user } = useAuth();
   const nav: any = useNavigation();
 
   const [searchId, setSearchId] = useState('');
@@ -33,7 +33,6 @@ const Index = () => {
     getUsers();
   }, []);
 
-
   return (
     <View style={styles.container}>
       <AppSidebar />
@@ -43,46 +42,49 @@ const Index = () => {
           <Button
             text='Leave'
             onClick={() => nav.navigate('leave/new')}
-            customStyle={{ marginRight: 10, paddingRight: 15 }}
+            customStyle={{ paddingRight: 15 }}
           />
         </View>
 
         {leave.length === 0 && <Text>List Empty</Text>}
 
-        <ScrollView
-          style={{ paddingRight: 10, flex: 1, backgroundColor: '#fff' }}
-          showsVerticalScrollIndicator={false}
-        >
-          {leave.length === 0 ? <Text>Attendance List Empty</Text> :
-          
-          leave.map((x) => {
-            return <Card data={x} />;
-          })}
-        </ScrollView>
-
-
-        {/* <Table
-          itemsPerPage={12}
-          handleSearch={(e) => setSearchId(e.target.value)}
-          title='Leaves'
-          data={leave
-            .map((x) => {
-              const userId = allUser.find((y) => y._id === x.userId)?.userId;
-              const user = allUser.find((y) => y._id === x.userId);
-              return {
-                ...x,
-                userId: userId,
-                name: user && `${user.firstName} ${user.lastName}`,
-                status: x.status ? 'Confirmed' : 'Unconfirmed',
-              };
-            })
-            ?.filter((x) => x?.userId?.toLowerCase().includes(searchId?.toLowerCase()))}
-          columns={headers as any}
-          onEdit={(item) => console.log('first')}
-          onRemove={function (): void {
-            throw new Error('Function not implemented.');
-          }}
-        /> */}
+        {user.role === 'user' ? (
+          <ScrollView
+            style={{ paddingRight: 10, flex: 1, backgroundColor: '#fff' }}
+            showsVerticalScrollIndicator={false}
+          >
+            {leave.length === 0 ? (
+              <Text>Attendance List Empty</Text>
+            ) : (
+              leave.map((x) => {
+                return <Card data={x} />;
+              })
+            )}
+          </ScrollView>
+        ) : (
+          <Table
+            itemsPerPage={12}
+            handleSearch={(e) => setSearchId(e)}
+            title='Leaves'
+            data={leave
+              .map((x) => {
+                const userId = allUser.find((y) => y._id === x.userId)?.userId;
+                const user = allUser.find((y) => y._id === x.userId);
+                return {
+                  ...x,
+                  userId: userId,
+                  name: user && `${user.firstName} ${user.lastName}`,
+                  status: x.status ? 'Confirmed' : 'Unconfirmed',
+                };
+              })
+              ?.filter((x) => x?.userId?.toLowerCase().includes(searchId?.toLowerCase()))}
+            columns={headers as any}
+            onEdit={(item) => console.log('first')}
+            onRemove={function (): void {
+              throw new Error('Function not implemented.');
+            }}
+          />
+        )}
       </View>
     </View>
   );
@@ -111,14 +113,14 @@ const styles = StyleSheet.create({
     margin: 0,
     position: 'relative',
     paddingRight: 10,
-    marginTop:100
+    marginTop: 100,
   },
 
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
- 
+
     paddingRight: 10,
   },
   headerText: {

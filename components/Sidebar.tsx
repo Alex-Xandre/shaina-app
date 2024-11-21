@@ -34,20 +34,20 @@ const AppSidebar: React.FC = () => {
 
   const MenuHR = useMemo(
     () => [
-      { title: 'Dashboard', url: 'home', icon: <HomeIcon /> },
-      { title: 'Employees', url: 'employee/index', icon: <UserIcon /> },
-      { title: 'Attendance', url: 'attendance/index', icon: <DocumentTextIcon /> },
-      { title: 'Leaves', url: 'leave/index', icon: <FolderIcon /> },
-      { title: 'Shift/Tasks', url: 'shift/index', icon: <FolderIcon /> },
+      { title: 'Dashboard', url: 'home', icon: <HomeIcon   color='#fff' /> },
+      { title: 'Employees', url: 'employee/index', icon: <UserIcon  color='#fff' /> },
+      { title: 'Attendance', url: 'attendance/index', icon: <DocumentTextIcon  color='#fff' /> },
+      { title: 'Leaves', url: 'leave/index', icon: <FolderIcon   color='#fff'/> },
+      { title: 'Shift/Tasks', url: 'shift/index', icon: <FolderIcon  color='#fff' /> },
     ],
     []
   );
 
   const MenuAcc = useMemo(
     () => [
-      { title: 'Dashboard', url: 'Dashboard', icon: <HomeIcon /> },
-      { title: 'Payroll', url: 'Payroll', icon: <BanknotesIcon /> },
-      { title: 'Employees', url: 'Employees', icon: <UserIcon /> },
+      { title: 'Dashboard', url: 'Dashboard', icon: <HomeIcon  color='#fff'/> },
+      { title: 'Payroll', url: 'Payroll', icon: <BanknotesIcon   color='#fff'/> },
+      { title: 'Employees', url: 'Employees', icon: <UserIcon   color='#fff'/> },
     ],
     []
   );

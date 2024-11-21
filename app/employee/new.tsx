@@ -84,7 +84,6 @@ const NewEmployee = () => {
   const { dispatch } = useAuth();
 
   const handleSubmit = async () => {
-   
     const res = await registerUserByAdmin({
       ...formData,
       password: new Date(formData.birthday as string).getFullYear(),
@@ -129,11 +128,7 @@ const NewEmployee = () => {
         <View style={styles.form}>
           <TouchableOpacity
             style={styles.avatarContainer}
-            onPress={() => {
-              if (inputFile.current !== null) {
-                inputFile.current.click();
-              }
-            }}
+            onPress={changeAvatar}
           >
             <Image
               source={{
@@ -197,8 +192,8 @@ const NewEmployee = () => {
 
           {user.role !== 'user' && (
             <Text style={styles.note}>
-              Note: Passwords are auto-generated and will be emailed to the access email - Password Format is
-              (LastName_FirstName-Birth Year) e.g. Juan_Delacruz-2024
+              Note: Passwords are auto generated and will be email to the access email -  Password Format is
+              (YYYY-MM-DD) e.g. 2024-01-25
             </Text>
           )}
           <Button
@@ -218,6 +213,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     paddingVertical: 18,
     width: '100%',
+    paddingTop: 110,
   },
   content: {
     height: '90%',

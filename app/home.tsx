@@ -14,6 +14,7 @@ import { FolderIcon } from 'react-native-heroicons/outline';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getUser } from '@/api/get.info.api';
 import { useNavigation } from 'expo-router';
+import HomeHr from './hr/home.hr';
 
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
@@ -162,13 +163,32 @@ const Waiting_Driver_Screen = () => {
 
   const today = new Date().toISOString().split('T')[0];
   const targetDateFormatted = today.substring(5, 7) + '-' + today.substring(8, 10) + '-' + today.substring(0, 4);
-  67;
+  // 67;
   const filteredShifts =
     shifts && Array.isArray(shifts) ? shifts.filter((shift) => shift.date === targetDateFormatted) : [];
 
+  // const pickImage = async () => {
+  //   let result = await ImagePicker.launchImageLibraryAsync({
+  //     mediaTypes: ImagePicker.MediaTypeOptions.All,
+  //     allowsEditing: true,
+  //     aspect: [4, 3],
+  //     quality: 1,
+  //   });
+
+  //   if (!result.canceled) {
+  //     try {
+  //       const uploadedUrl = await uploadFile(result.assets[0] as any);
+  //       setImages(uploadedUrl);
+  //     } catch (error) {
+  //       console.error('File upload failed:', error);
+  //     }
+  //   } else {
+  //     console.log('Image selection was canceled.');
+  //   }
+  // };
+
   const pickImage = async () => {
-    let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.All,
+    let result = await ImagePicker.launchCameraAsync({
       allowsEditing: true,
       aspect: [4, 3],
       quality: 1,
@@ -182,7 +202,102 @@ const Waiting_Driver_Screen = () => {
         console.error('File upload failed:', error);
       }
     } else {
-      console.log('Image selection was canceled.');
+      console.log('Image capture was canceled.');
+    }
+  };
+
+  useEffect(() => {
+    const requestCameraPermission = async () => {
+      const { status } = await ImagePicker.requestCameraPermissionsAsync();
+      if (status !== 'granted') {
+        console.log('Permission to access camera was denied');
+      }
+    };
+
+    requestCameraPermission();
+  }, []);
+
+  const renderRoute = () => {
+    if (!user) return null;
+    if (user.role === 'user') {
+      return (
+        <>
+          {initialRegion && (
+            <View style={styles.containerMap}>
+              <MapView
+                style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}
+                initialRegion={initialRegion}
+              >
+                {currentLocation && (
+                  <Marker
+                    coordinate={{
+                      latitude: currentLocation.latitude,
+                      longitude: currentLocation.longitude,
+                    }}
+                    title='Your Location'
+                  />
+                )}
+              </MapView>
+            </View>
+          )}
+          {filteredShifts.length > 0 && (
+            <TouchableOpacity
+              onPress={pickImage}
+              style={{ padding: 13, gap: 3, flexDirection: 'row', alignItems: 'center' }}
+            >
+              {images ? (
+                <Image
+                  source={{
+                    uri: images,
+                  }}
+                  style={{ width: 50, height: 50, marginRight: 10 }}
+                />
+              ) : (
+                <FolderIcon color='#000 ' />
+              )}
+              <Text>Upload Image for attendance</Text>
+            </TouchableOpacity>
+          )}
+          {filteredShifts.length === 0 ? (
+            <Text style={{ padding: 10, fontWeight: '700' }}>No Shift Found</Text>
+          ) : (
+            <View style={styles.timeContainer}>
+              <View style={styles.timeBox}>
+                <Text style={styles.label}>Time-in: </Text>
+                <Text style={styles.time}>
+                  {data?.timeIn ? convertTo12HourFormat(data.timeIn) : 'Not clocked in yet'}
+                </Text>
+                {attendanceStatus !== 'present' && (
+                  <TouchableOpacity
+                    style={styles.button}
+                    onPress={handleTimeIn}
+                  >
+                    <Text style={styles.buttonText}>Time In</Text>
+                  </TouchableOpacity>
+                )}
+              </View>
+              <View style={styles.timeBox}>
+                <Text style={styles.label}>Time-out:</Text>
+                <Text style={styles.time}>
+                  {data?.timeOut ? convertTo12HourFormat(data.timeOut) : 'Not clocked out yet'}
+                </Text>
+                {attendanceStatus === 'present' && data?.timeOut === '' ? (
+                  <TouchableOpacity
+                    style={styles.button}
+                    onPress={handleTimeOut}
+                  >
+                    <Text style={styles.buttonText}>Time Out</Text>
+                  </TouchableOpacity>
+                ) : null}
+              </View>
+            </View>
+          )}
+        </>
+      );
+    }
+
+    if (user.role === 'hr') {
+      return <HomeHr />;
     }
   };
 
@@ -192,75 +307,7 @@ const Waiting_Driver_Screen = () => {
       <View style={styles.header}>
         <Text style={styles.dateText}>{currentDate}</Text>
       </View>
-
-      {initialRegion && (
-        <View style={styles.containerMap}>
-          <MapView
-            style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}
-            initialRegion={initialRegion}
-          >
-            {currentLocation && (
-              <Marker
-                coordinate={{
-                  latitude: currentLocation.latitude,
-                  longitude: currentLocation.longitude,
-                }}
-                title='Your Location'
-              />
-            )}
-          </MapView>
-        </View>
-      )}
-      {filteredShifts.length > 0 && (
-        <TouchableOpacity
-          onPress={pickImage}
-          style={{ padding: 13, gap: 3, flexDirection: 'row', alignItems: 'center' }}
-        >
-          {images ? (
-            <Image
-              source={{
-                uri: images,
-              }}
-              style={{ width: 50, height: 50, marginRight: 10 }}
-            />
-          ) : (
-            <FolderIcon color='#000 ' />
-          )}
-          <Text>Upload Image for attendance</Text>
-        </TouchableOpacity>
-      )}
-      {filteredShifts.length === 0 ? (
-        <Text style={{ padding: 10, fontWeight: '700' }}>No Shift Found</Text>
-      ) : (
-        <View style={styles.timeContainer}>
-          <View style={styles.timeBox}>
-            <Text style={styles.label}>Time-in: </Text>
-            <Text style={styles.time}>{data?.timeIn ? convertTo12HourFormat(data.timeIn) : 'Not clocked in yet'}</Text>
-            {attendanceStatus !== 'present' && (
-              <TouchableOpacity
-                style={styles.button}
-                onPress={handleTimeIn}
-              >
-                <Text style={styles.buttonText}>Time In</Text>
-              </TouchableOpacity>
-            )}
-          </View>
-          <View style={styles.timeBox}>
-            <Text style={styles.label}>Time-out:</Text>
-            <Text style={styles.time}>
-              {data?.timeOut ? convertTo12HourFormat(data.timeOut) : 'Not clocked out yet'}
-            </Text>
-            {attendanceStatus === 'present' && data?.timeOut === '' ? (
-              <TouchableOpacity
-                style={styles.button}
-                onPress={handleTimeOut}
-              >
-                <Text style={styles.buttonText}>Time Out</Text>
-              </TouchableOpacity>
-            ) : null}
-          </View>
-        </View>
-      )}
+      {renderRoute()}
     </View>
   );
 };

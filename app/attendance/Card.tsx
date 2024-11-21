@@ -5,7 +5,9 @@ import { View, Text, StyleSheet, Image } from 'react-native';
 
 const Card = ({ data }: { data: AttendanceType }) => {
   const { date, location, locationImage, status, timeIn, timeOut } = data;
-
+  if (!date) {
+    return;
+  }
   const formattedDate = new Date(date);
   const formattedDateString = `${formattedDate.toLocaleString('default', {
     month: 'long',
@@ -46,32 +48,32 @@ const Card = ({ data }: { data: AttendanceType }) => {
 };
 
 // Function to determine status text color based on status
-const getStatusStyle = (status:string) => {
+const getStatusStyle = (status: string) => {
   switch (status) {
     case 'pending':
-      return { color: '#ff9800' }; 
+      return { color: '#ff9800' };
     case 'present':
       return { color: '#4caf50' };
     case 'confirmed':
-      return { color: '#2196f3' }; 
+      return { color: '#2196f3' };
     case 'completed':
-      return { color: '#9e9e9e' }; 
+      return { color: '#9e9e9e' };
     case 'leave':
       return { color: '#f44336' };
     default:
-      return { color: '#000' }; 
+      return { color: '#000' };
   }
 };
 
 const styles = StyleSheet.create({
   card: {
     borderBottomWidth: 1,
-    borderBottomColor: '#ccc', 
+    borderBottomColor: '#ccc',
     paddingHorizontal: 0,
     paddingVertical: 10,
     marginBottom: 10,
     borderRadius: 8,
-    shadowRadius: 4, 
+    shadowRadius: 4,
     backgroundColor: '#fff',
   },
   date: {

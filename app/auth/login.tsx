@@ -4,7 +4,7 @@ import { useNavigation, useRouter } from 'expo-router';
 import { ThemedView } from '@/components/ThemedView';
 import Input from '@/components/Input';
 import Button from '@/components/Button';
-import { UserIcon, KeyIcon } from 'react-native-heroicons/outline';
+import { UserIcon, KeyIcon, EyeIcon, EyeSlashIcon } from 'react-native-heroicons/outline';
 import { ThemedText } from '@/components/ThemedText';
 import logo from '../../assets/images/logo.png';
 import { loginUser } from '@/api/login.api';
@@ -42,7 +42,7 @@ const Login = () => {
     const res = await loginUser({ userId, password });
 
     if (res.success === false) {
-      console.log(res)
+      console.log(res);
       ToastAndroid.show(res.data?.msg || 'Error', ToastAndroid.SHORT);
 
       return;
@@ -57,6 +57,10 @@ const Login = () => {
     // }, 1500);
   };
 
+  const [showPassword, setShowPassword] = useState(true);
+  const handleShowPassword = () => {
+    setShowPassword(!showPassword);
+  };
   return (
     <ThemedView style={styles.container}>
       <View style={styles.logoContainer}>
@@ -87,15 +91,26 @@ const Login = () => {
       <Input
         placeholder='Password'
         value={password}
+        isPassword={showPassword}
         icon={
-          <KeyIcon
-            height={24}
-            width={24}
-            color='#808080'
-          />
+          showPassword ? (
+            <EyeIcon
+              height={24}
+              onPress={handleShowPassword}
+              width={24}
+              color='#808080'
+            />
+          ) : (
+            <EyeSlashIcon
+              height={24}
+              onPress={handleShowPassword}
+              width={24}
+              color='#808080'
+            />
+          )
         }
+        handleShowPassword={handleShowPassword}
         onChangeText={setPassword}
-        secureTextEntry={true}
         error={passwordError}
       />
 
@@ -126,6 +141,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     padding: 16,
+    marginTop:25
   },
   logoContainer: {
     flexDirection: 'row',

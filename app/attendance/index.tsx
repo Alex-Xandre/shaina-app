@@ -15,6 +15,7 @@ import { fetchAttendance, fetchShifts, fetchUsers } from '@/state/AuthReducer';
 import { getTasks } from '@/api/tasks.api';
 import { getAllUser } from '@/api/get.info.api';
 import Card from './Card';
+import SalaryCard from './SalaryCard';
 const index = () => {
   const headers = [
     {
@@ -265,76 +266,81 @@ const index = () => {
           </View>
         </View>
 
-        <ScrollView
-          style={{ paddingRight: 10, flex: 1, backgroundColor: '#fff' }}
-          showsVerticalScrollIndicator={false}
-        >
-          {attendanceData.length === 0 ? <Text>Attendance List Empty</Text> :
-          
-          attendanceData.map((x) => {
-            return <Card data={x} />;
-          })}
-        </ScrollView>
-        {/* <Table
-          itemsPerPage={12}
-          handleBatch={
-            isAttendance &&
-            // <div className='inline-flex hover:bg-gray ml-2'>
-            //   <span>
-            //     <CheckCircleIcon />
-            //   </span>
-            //   <span className='ml-2 '>Mark All Selected As Paid</span>
-            // </div>
-            null
-          }
-          // submitSelected={(e) => handleSubmit(e)}
-          handleSearch={(e) => setSearchId(e.target.value)}
-          title='Attendance'
-          isPay={isAttendance}
-          data={filteredData()
-            .filter((record) => status === 'all' || (record && record.status === status))
-            // ?.filter((x) => x?.userId?.toLowerCase().includes(searchId?.toLowerCase()))
-            // // .filter((x) => shifts.find((y) => y.date === formatDate(new Date(x === null ? Date.now() : x.date))))
-            ?.filter((x) => (isAttendance ? x !== null && x.status : x))}
-          columns={headers as any}
-          onEdit={(item) => console.log('first')}
-          onRemove={function (): void {
-            throw new Error('Function not implemented.');
-          }}
-          onViewPayment={(data) => {
-            function removeAmPm(time: string): string {
-              // Assuming time is in the format "hh:mm AM" or "hh:mm PM"
-              return time.replace(/ AM| PM/, '');
+        {user.role !== 'user' ? (
+          <Table
+            itemsPerPage={12}
+            handleBatch={
+              isAttendance &&
+              // <div className='inline-flex hover:bg-gray ml-2'>
+              //   <span>
+              //     <CheckCircleIcon />
+              //   </span>
+              //   <span className='ml-2 '>Mark All Selected As Paid</span>
+              // </div>
+              null
             }
+            // submitSelected={(e) => handleSubmit(e)}
+            handleSearch={(e) => setSearchId(e)}
+            title='Attendance'
+            isPay={isAttendance}
+            data={filteredData()
+              .filter((record) => status === 'all' || (record && record.status === status))
+              // ?.filter((x) => x?.userId?.toLowerCase().includes(searchId?.toLowerCase()))
+              // // .filter((x) => shifts.find((y) => y.date === formatDate(new Date(x === null ? Date.now() : x.date))))
+              ?.filter((x) => (isAttendance ? x !== null && x.status : x))}
+            columns={headers as any}
+            onEdit={(item) => console.log('first')}
+            onRemove={function (): void {
+              throw new Error('Function not implemented.');
+            }}
+            onViewPayment={(data) => {
+              function removeAmPm(time: string): string {
+                // Assuming time is in the format "hh:mm AM" or "hh:mm PM"
+                return time.replace(/ AM| PM/, '');
+              }
 
-            const tI = data.timeIn;
-            const tO = data.timeOut;
-            // const handleSubmit = async () => {
-            //   const res = await registerAttendance({
-            //     ...data,
-            //     salaryIsPaid: true,
-            //     timeIn: tI === 'N/A' || tI === 'NOT CLOCKED IN' ? '00:00' : removeAmPm(data.timeIn),
-            //     timeOut: tO === 'N/A' || tO === 'NOT CLOCKED IN' ? '00:00' : removeAmPm(data.timeOut),
-            //     userId: allUser.find((x) => x.userId === data.userId)?._id,
-            //   });
+              const tI = data.timeIn;
+              const tO = data.timeOut;
+              // const handleSubmit = async () => {
+              //   const res = await registerAttendance({
+              //     ...data,
+              //     salaryIsPaid: true,
+              //     timeIn: tI === 'N/A' || tI === 'NOT CLOCKED IN' ? '00:00' : removeAmPm(data.timeIn),
+              //     timeOut: tO === 'N/A' || tO === 'NOT CLOCKED IN' ? '00:00' : removeAmPm(data.timeOut),
+              //     userId: allUser.find((x) => x.userId === data.userId)?._id,
+              //   });
 
-            //   if (res.success === false) return toast.error(res.data?.msg || 'Error');
+              //   if (res.success === false) return toast.error(res.data?.msg || 'Error');
 
-            //   toast.success('Salary updated', {
-            //     position: 'bottom-right',
-            //   });
-            //   dispatch({ type: 'ADD_ATTENDANCE', payload: res });
-            // };
+              //   toast.success('Salary updated', {
+              //     position: 'bottom-right',
+              //   });
+              //   dispatch({ type: 'ADD_ATTENDANCE', payload: res });
+              // };
 
-            // if (data.salaryIsPaid) {
-            //   toast.error('Salary already marked as paid', {
-            //     position: 'bottom-right',
-            //   });
-            // } else {
-            //   handleSubmit();
-            // }
-          }}
-        /> */}
+              // if (data.salaryIsPaid) {
+              //   toast.error('Salary already marked as paid', {
+              //     position: 'bottom-right',
+              //   });
+              // } else {
+              //   handleSubmit();
+              // }
+            }}
+          />
+        ) : (
+          <ScrollView
+            style={{ paddingRight: 10, flex: 1, backgroundColor: '#fff' }}
+            showsVerticalScrollIndicator={false}
+          >
+            {attendanceData.length === 0 ? (
+              <Text style={{ marginTop: 10 }}>Attendance List Empty</Text>
+            ) : (
+              attendanceData.map((x) => {
+                return !isAttendance ? <Card data={x} /> : <SalaryCard data={x} />;
+              })
+            )}
+          </ScrollView>
+        )}
       </View>
     </View>
   );
@@ -353,6 +359,7 @@ const styles = StyleSheet.create({
     margin: 0,
     marginTop: 100,
     position: 'relative',
+    paddingRight:10
   },
 
   tableContainer: {
@@ -380,20 +387,26 @@ const styles = StyleSheet.create({
   dateSeparator: {
     marginHorizontal: 4,
   },
+
   tabContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginRight: 30,
-    marginTop: 10,
+    justifyContent: 'center',
+    marginTop: 20,
   },
   tab: {
     fontSize: 14,
-    paddingVertical: 8,
-    paddingHorizontal: 12,
+    fontWeight: '500',
+    paddingVertical: 12,
+    paddingHorizontal: 20,
     cursor: 'pointer',
+    borderBottomWidth: 2,
+    borderBottomColor: 'transparent',
+    marginRight: 10,
+    color: '#888',
   },
   activeTab: {
-    backgroundColor:"#ccc"
+    color: '#000',
+    borderBottomColor: '#007bff',
   },
   button: {
     flexDirection: 'row',

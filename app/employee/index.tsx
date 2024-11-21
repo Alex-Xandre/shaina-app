@@ -38,6 +38,8 @@ const Index = () => {
   const { allUser, dispatch } = useAuth();
   const nav: any = useNavigation();
 
+  console.log(searchId);
+
   useEffect(() => {
     const getUsers = async () => {
       const getAllUsers = await getAllUser();
@@ -48,21 +50,18 @@ const Index = () => {
   }, []);
 
   return (
-    <ScrollView
-      contentContainerStyle={{ flexGrow: 1 }}
-      style={{ flex: 1 }}
-    >
-      {/* <AppSidebar /> */}
-      <Text>hi</Text>
-      <View style={Container as any}>
+    <View style={styles.container}>
+      <AppSidebar />
+
+      <View style={styles.content}>
         <View style={styles.nav}>
           <View style={styles.containerHeader}>
             <Text style={styles.title}>Employees</Text>
 
             <Button
               text='Employee'
+             
               onClick={() => nav.navigate('employee/new')}
-              customStyle={{ marginRight: 10 }}
             />
           </View>
 
@@ -100,42 +99,48 @@ const Index = () => {
           </View>
         </View>
 
-        <View style={styles.tableContainer}>
-          <Table
-            itemsPerPage={10}
-            title='Employees'
-            data={allUser
-              .filter((x) => (roles === '' ? x : x.role === roles) && (ranks === '' ? x : x.rank === ranks))
-              ?.filter((x) => x?.userId?.toLowerCase().includes(searchId?.toLowerCase()))
-              .map((x) => {
-                const fullName = x?.firstName + ' ' + x?.lastName;
-                return {
-                  ...x,
-                  name: fullName,
-                  role: x.role === 'act' ? 'Accounting' : x.role === 'hr' ? 'HR' : 'Officer',
-                };
-              })}
-            handleSearch={(e) => setSearchId(e.target.value)}
-            columns={headers as any}
-            onEdit={(item) => {
-              nav.navigate('employee/new', { data: item._id });
-            }}
-            onRemove={function (): void {
-              throw new Error('Function not implemented.');
-            }}
-          />
-        </View>
+        <Table
+          itemsPerPage={10}
+          title='Employees'
+          data={allUser
+            .filter((x) => (roles === '' ? x : x.role === roles) && (ranks === '' ? x : x.rank === ranks))
+            ?.filter((x) => (searchId === '' ? x : x?.userId?.toLowerCase().includes(searchId?.toLowerCase())))
+            .map((x) => {
+              const fullName = x?.firstName + ' ' + x?.lastName;
+              return {
+                ...x,
+                name: fullName,
+                role: x.role === 'act' ? 'Accounting' : x.role === 'hr' ? 'HR' : 'Officer',
+              };
+            })}
+          handleSearch={(e) => setSearchId(e)}
+          columns={headers as any}
+          onEdit={(item) => {
+            nav.navigate('employee/new', { data: item._id });
+          }}
+          onRemove={function (): void {
+            throw new Error('Function not implemented.');
+          }}
+        />
       </View>
-    </ScrollView>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
-  tableContainer: {
-    marginTop: 100,
-    marginRight: 20,
+  container: {
+    flex: 1,
     backgroundColor: 'white',
-    borderRadius: 10,
+    paddingVertical: 18,
+    width: '100%',
+  },
+  content: {
+    height: '90%',
+    paddingLeft: 15,
+    margin: 0,
+    position: 'relative',
+    paddingRight: 10,
+    marginTop: 100,
   },
 
   containerHeader: {
@@ -149,7 +154,7 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginRight: 16,
+    marginRight: 2,
     padding: 4,
     zIndex: 400,
   },
