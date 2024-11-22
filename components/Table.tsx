@@ -154,10 +154,7 @@ const Table = <T,>({
           icon={<MagnifyingGlassIcon color='#ccc' />}
           onChangeText={(text) => {
             console.log(text);
-            if (handleSearch) 
-              handleSearch(text);
-              1;
-            }
+            if (handleSearch) handleSearch(text);
           }}
         />
       )}
