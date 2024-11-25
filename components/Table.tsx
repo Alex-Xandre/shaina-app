@@ -1,10 +1,10 @@
-import React, { ReactNode, useState } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Dimensions } from 'react-native';
-import Input from './Input';
-import { TableProps } from '@/types';
-import { roleColor } from './helpers/statusColor';
-import { MagnifyingGlassIcon } from 'react-native-heroicons/outline';
 import { useAuth } from '@/state/AuthContext';
+import { TableProps } from '@/types';
+import { ReactNode, useState } from 'react';
+import { Dimensions, Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { MagnifyingGlassIcon } from 'react-native-heroicons/outline';
+import { roleColor } from './helpers/statusColor';
+import Input from './Input';
 
 const { width: screenWidth } = Dimensions.get('window');
 
@@ -61,28 +61,43 @@ const Table = <T,>({
     card: {
       backgroundColor: '#fff',
       borderRadius: 8,
-      padding: 15,
       marginBottom: 10,
-      borderWidth: 1,
+      borderBottomWidth: 1,
       borderColor: '#ccc',
+      position: 'relative',
     },
     cardHeader: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      justifyContent: 'space-between',
       marginBottom: 10,
     },
     cardItem: {
-      marginBottom: 5,
+      flexBasis: '48%',
+      marginBottom: 10,
+      position: 'relative'
     },
     cardLabel: {
       fontWeight: 'bold',
+      marginBottom: 5,
     },
     cardValue: {
       color: '#333',
       fontSize: 14,
     },
+    chevron: {
+      fontSize: 18,
+      color: '#007bff',
+      textAlign: 'center',
+      marginLeft: "auto",
+      bottom: -10,
+      backgroundColor: "graydark",
+    },
     actions: {
       flexDirection: 'row',
       justifyContent: 'space-between',
       marginTop: 10,
+      paddingBottom: 10
     },
     actionButton: {
       padding: 8,
@@ -98,6 +113,7 @@ const Table = <T,>({
       justifyContent: 'space-between',
       marginTop: 10,
       marginBottom: 5,
+
     },
     pageButton: {
       color: '#007bff',
@@ -128,6 +144,9 @@ const Table = <T,>({
   const currentItems = data.slice(startIndex, startIndex + itemsPerPage);
   const [selectedRows, setSelectedRows] = useState<string[]>([]);
 
+  // State to track expanded cards
+  const [expandedCards, setExpandedCards] = useState<Set<number>>(new Set());
+
   const handlePageChange = (page: number) => {
     if (page > 0 && page <= totalPages) {
       setCurrentPage(page);
@@ -144,40 +163,48 @@ const Table = <T,>({
     });
   };
 
+  // Toggle expand/collapse for each card
+  const toggleCardExpansion = (cardIndex: number) => {
+    setExpandedCards((prev) => {
+      const newExpandedCards = new Set(prev);
+      if (newExpandedCards.has(cardIndex)) {
+        newExpandedCards.delete(cardIndex); // Collapse the card if it's already expanded
+      } else {
+        newExpandedCards.add(cardIndex); // Expand the card
+      }
+      return newExpandedCards;
+    });
+  };
+
   const { user } = useAuth();
 
   return (
     <View style={styles.container}>
       {!notSearch && user.role !== 'user' && (
         <Input
-          placeholder='Officer ID'
-          icon={<MagnifyingGlassIcon color='#ccc' />}
+          placeholder="Officer ID"
+          icon={<MagnifyingGlassIcon color="#ccc" />}
           onChangeText={(text) => {
             console.log(text);
             if (handleSearch) handleSearch(text);
           }}
+
         />
       )}
 
-      <ScrollView
-        style={styles.scrollContainer}
-        showsHorizontalScrollIndicator={false}
-      >
-        <View style={styles.list}>
+      <ScrollView style={styles.scrollContainer} showsHorizontalScrollIndicator={false}>
+        <View style={styles.list} >
           {currentItems.length === 0 ? (
             <Text style={styles.noData}>No Data Found</Text>
           ) : (
             currentItems.map((row, rowIndex) => (
-              <View
-                key={rowIndex}
-                style={styles.card}
-              >
+              <Pressable key={rowIndex} style={styles.card} onPress={() => toggleCardExpansion(rowIndex)}>
+
+
                 <View style={styles.cardHeader}>
-                  {columns.map((column, columnIndex) => (
-                    <View
-                      key={columnIndex}
-                      style={styles.cardItem}
-                    >
+                  {/* Show only the first two columns initially */}
+                  {columns.slice(0, 2).map((column, columnIndex) => (
+                    <View key={columnIndex} style={styles.cardItem}>
                       <Text style={styles.cardLabel}>{column.header}:</Text>
                       <Text
                         style={[
@@ -187,10 +214,10 @@ const Table = <T,>({
                             color:
                               title === 'User'
                                 ? roleColor[
-                                    column.render
-                                      ? column.render(row[column.accessor], row)
-                                      : (row[column.accessor] as any)
-                                  ]
+                                column.render
+                                  ? column.render(row[column.accessor], row)
+                                  : (row[column.accessor] as any)
+                                ]
                                 : '#000',
                           },
                         ]}
@@ -201,44 +228,63 @@ const Table = <T,>({
                   ))}
                 </View>
 
-                {user.role !== 'user' && (
+
+
+                {/* Show the remaining columns if expanded */}
+                {expandedCards.has(rowIndex) &&
+                  columns.slice(2).map((column, columnIndex) => (
+                    <View key={columnIndex} style={styles.cardItem}>
+                      <Text style={styles.cardLabel}>{column.header}:</Text>
+                      <Text
+                        style={[
+                          styles.cardValue,
+                          {
+                            backgroundColor: title === 'applicant' ? '#f0f0f0' : 'transparent',
+                            color:
+                              title === 'User'
+                                ? roleColor[
+                                column.render
+                                  ? column.render(row[column.accessor], row)
+                                  : (row[column.accessor] as any)
+                                ]
+                                : '#000',
+                          },
+                        ]}
+                      >
+                        {column.render ? column.render(row[column.accessor], row) : (row[column.accessor] as string)}
+                      </Text>
+                    </View>
+                  ))
+
+                }
+                {expandedCards.has(rowIndex) && user.role !== 'user' && (
                   <View style={styles.actions}>
-                    <TouchableOpacity
-                      onPress={() => onEdit(row)}
-                      style={styles.actionButton}
-                    >
+                    <TouchableOpacity onPress={() => onEdit(row)} style={styles.actionButton}>
                       <Text style={styles.actionText}>View</Text>
                     </TouchableOpacity>
                     {isPay && (
-                      <TouchableOpacity
-                        onPress={() => onViewPayment && onViewPayment(row)}
-                        style={styles.actionButton}
-                      >
-                        <Text style={styles.actionText}>{(row as any)?.salaryIsPaid ? 'Paid' : 'Mark as Paid'}</Text>
+                      <TouchableOpacity onPress={() => onViewPayment && onViewPayment(row)} style={styles.actionButton}>
+                        <Text style={styles.actionText}>
+                          {(row as any)?.salaryIsPaid ? 'Paid' : 'Mark as Paid'}
+                        </Text>
                       </TouchableOpacity>
                     )}
                   </View>
                 )}
-              </View>
+              </Pressable>
             ))
           )}
         </View>
       </ScrollView>
 
       <View style={styles.pagination}>
-        <TouchableOpacity
-          onPress={() => handlePageChange(currentPage - 1)}
-          disabled={currentPage === 1}
-        >
+        <TouchableOpacity onPress={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1}>
           <Text style={[styles.pageButton, currentPage === 1 && styles.disabled]}>Previous</Text>
         </TouchableOpacity>
         <Text style={styles.pageInfo}>
           Page {currentPage} of {totalPages}
         </Text>
-        <TouchableOpacity
-          onPress={() => handlePageChange(currentPage + 1)}
-          disabled={currentPage === totalPages}
-        >
+        <TouchableOpacity onPress={() => handlePageChange(currentPage + 1)} disabled={currentPage === totalPages}>
           <Text style={[styles.pageButton, currentPage === totalPages && styles.disabled]}>Next</Text>
         </TouchableOpacity>
       </View>

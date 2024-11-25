@@ -1,15 +1,13 @@
 import { getLeave } from '@/api/leave.api';
 import Button from '@/components/Button';
-import { Container } from '@/components/helpers/Container';
 import AppSidebar from '@/components/Sidebar';
 import Table from '@/components/Table';
 import { useAuth } from '@/state/AuthContext';
 import { fetchLeaves } from '@/state/AuthReducer';
 import { useNavigation } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
-import { PlusIcon } from 'react-native-heroicons/outline';
 import Card from './Card';
 
 const Index = () => {
@@ -33,6 +31,7 @@ const Index = () => {
     getUsers();
   }, []);
 
+  const navigation: any = useNavigation();
   return (
     <View style={styles.container}>
       <AppSidebar />
@@ -79,7 +78,12 @@ const Index = () => {
               })
               ?.filter((x) => x?.userId?.toLowerCase().includes(searchId?.toLowerCase()))}
             columns={headers as any}
-            onEdit={(item) => console.log('first')}
+            onEdit={(item) => {
+              navigation.navigate('leave/new', {
+                item: item._id
+              })
+            }}
+
             onRemove={function (): void {
               throw new Error('Function not implemented.');
             }}

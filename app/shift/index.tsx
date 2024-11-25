@@ -1,16 +1,16 @@
 import { getTasks } from '@/api/tasks.api';
 import Button from '@/components/Button';
 import AppSidebar from '@/components/Sidebar';
-import { useAuth } from '@/state/AuthContext';
-import { fetchShifts } from '@/state/AuthReducer';
-import { useNavigation } from 'expo-router';
-import React, { useEffect, useState } from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
-import DateTimePicker from '@react-native-community/datetimepicker';
-import Card from './Card';
 import Table from '@/components/Table';
 import { convertTo12HourFormat } from '@/components/helpers/formatto12Hours';
+import { useAuth } from '@/state/AuthContext';
+import { fetchShifts } from '@/state/AuthReducer';
+import DateTimePicker from '@react-native-community/datetimepicker';
+import { useNavigation } from 'expo-router';
+import { useEffect, useState } from 'react';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
+import Card from './Card';
 const headers = [
   { header: 'User ID', accessor: 'userId' },
   { header: 'Name', accessor: 'name' },
@@ -280,8 +280,8 @@ const styles = StyleSheet.create({
   },
   dateText: {
     backgroundColor: '#f0f0f0',
-    paddingHorizontal: 5,
-    paddingVertical: 4,
+    paddingHorizontal: 10,
+    paddingVertical: 10,
     borderRadius: 5,
   },
 });

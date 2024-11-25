@@ -1,19 +1,16 @@
-import { Container } from '@/components/helpers/Container';
-import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
-import React, { useEffect, useState } from 'react';
-import AppSidebar from '@/components/Sidebar';
-import { useAuth } from '@/state/AuthContext';
-import Dropdown from '@/components/Dropdown';
-import Button from '@/components/Button';
-import DateTimePicker from '@react-native-community/datetimepicker';
-import Table from '@/components/Table';
-import { CheckCircleIcon } from 'react-native-heroicons/outline';
-import { formatDate } from '@/components/helpers/formatDateShift';
-import { ScrollView } from 'react-native-gesture-handler';
 import { getAttendance } from '@/api/attendance.api';
-import { fetchAttendance, fetchShifts, fetchUsers } from '@/state/AuthReducer';
-import { getTasks } from '@/api/tasks.api';
 import { getAllUser } from '@/api/get.info.api';
+import { getTasks } from '@/api/tasks.api';
+import Button from '@/components/Button';
+import Dropdown from '@/components/Dropdown';
+import AppSidebar from '@/components/Sidebar';
+import Table from '@/components/Table';
+import { useAuth } from '@/state/AuthContext';
+import { fetchAttendance, fetchShifts, fetchUsers } from '@/state/AuthReducer';
+import DateTimePicker from '@react-native-community/datetimepicker';
+import { useEffect, useState } from 'react';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ScrollView } from 'react-native-gesture-handler';
 import Card from './Card';
 import SalaryCard from './SalaryCard';
 const index = () => {
@@ -158,8 +155,8 @@ const index = () => {
               ? attendanceRecord.timeIn === ''
                 ? 'NOT CLOCKED IN'
                 : attendanceRecord.timeOut === ''
-                ? 'ON DUTY'
-                : convertTo12HourFormat(attendanceRecord.timeOut)
+                  ? 'ON DUTY'
+                  : convertTo12HourFormat(attendanceRecord.timeOut)
               : 'N/A',
             status: attendanceRecord && attendanceRecord.timeIn ? 'present' : attendanceRecord?.status,
           };
@@ -173,7 +170,7 @@ const index = () => {
   return (
     <View style={styles.container}>
       <AppSidebar />
-      <View style={styles.content}>
+      <ScrollView style={styles.content}>
         <View style={styles.header}>
           <Text style={styles.title}>List of {!isAttendance ? 'Attendance' : 'Salaries'}</Text>
           {user.role !== 'user' && <Button text='Attendance' />}
@@ -249,7 +246,7 @@ const index = () => {
         )}
 
         <View style={styles.tabContainer}>
-          <View style={{ flexDirection: 'row' }}>
+          <View style={{ flexDirection: 'row', justifyContent: "flex-end" }}>
             <Text
               style={[styles.tab, !isAttendance && styles.activeTab]}
               onPress={() => setIsAttendance(false)}
@@ -285,7 +282,7 @@ const index = () => {
             isPay={isAttendance}
             data={filteredData()
               .filter((record) => status === 'all' || (record && record.status === status))
-              // ?.filter((x) => x?.userId?.toLowerCase().includes(searchId?.toLowerCase()))
+              ?.filter((x) => x?.userId?.toLowerCase().includes(searchId?.toLowerCase()))
               // // .filter((x) => shifts.find((y) => y.date === formatDate(new Date(x === null ? Date.now() : x.date))))
               ?.filter((x) => (isAttendance ? x !== null && x.status : x))}
             columns={headers as any}
@@ -341,7 +338,7 @@ const index = () => {
             )}
           </ScrollView>
         )}
-      </View>
+      </ScrollView>
     </View>
   );
 };
@@ -359,7 +356,7 @@ const styles = StyleSheet.create({
     margin: 0,
     marginTop: 100,
     position: 'relative',
-    paddingRight:10
+    paddingRight: 10
   },
 
   tableContainer: {
@@ -390,7 +387,7 @@ const styles = StyleSheet.create({
 
   tabContainer: {
     flexDirection: 'row',
-    justifyContent: 'center',
+    justifyContent: 'flex-end',
     marginTop: 20,
   },
   tab: {

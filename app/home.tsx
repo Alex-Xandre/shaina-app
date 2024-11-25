@@ -1,21 +1,19 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { StyleSheet, View, Text, Dimensions, TouchableOpacity, ToastAndroid, Image, TextInput } from 'react-native';
-import * as Location from 'expo-location';
-import MapView, { Marker } from 'react-native-maps';
 import { getAttendance, registerAttendance } from '@/api/attendance.api';
-import { useAuth } from '@/state/AuthContext';
-import AppSidebar from '@/components/Sidebar';
-import { addAttendance, fetchAttendance, fetchShifts, login, signout } from '@/state/AuthReducer';
-import { getTasks } from '@/api/tasks.api';
-import { uploadFile } from '@/api/register.api';
-import * as ImagePicker from 'expo-image-picker';
-import * as FileSystem from 'expo-file-system';
-import { FolderIcon } from 'react-native-heroicons/outline';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getUser } from '@/api/get.info.api';
+import { uploadFile } from '@/api/register.api';
+import { getTasks } from '@/api/tasks.api';
+import AppSidebar from '@/components/Sidebar';
+import { useAuth } from '@/state/AuthContext';
+import { addAttendance, fetchAttendance, fetchShifts, login, signout } from '@/state/AuthReducer';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as ImagePicker from 'expo-image-picker';
+import * as Location from 'expo-location';
 import { useNavigation } from 'expo-router';
+import React, { useEffect, useState } from 'react';
+import { Dimensions, Image, StyleSheet, Text, ToastAndroid, TouchableOpacity, View } from 'react-native';
+import { FolderIcon } from 'react-native-heroicons/outline';
+import MapView, { Marker } from 'react-native-maps';
 import HomeHr from './hr/home.hr';
-
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
 
@@ -187,23 +185,37 @@ const Waiting_Driver_Screen = () => {
   //   }
   // };
 
+
   const pickImage = async () => {
+    // Request camera permissions first
+    const permissionResult = await ImagePicker.requestCameraPermissionsAsync();
+    if (permissionResult.granted === false) {
+      alert('Camera permission is required to take a photo.');
+      return;
+    }
+
+    console.log("Opening camera...");
     let result = await ImagePicker.launchCameraAsync({
-      allowsEditing: true,
+      allowsEditing: false,
       aspect: [4, 3],
       quality: 1,
     });
 
+    console.log("Camera result: ", result); // Log the result to check what's returned
+
     if (!result.canceled) {
       try {
+        console.log("Starting file upload...");
         const uploadedUrl = await uploadFile(result.assets[0] as any);
+        console.log("Uploaded URL:", uploadedUrl);
         setImages(uploadedUrl);
       } catch (error) {
-        console.error('File upload failed:', error);
+        console.error("File upload failed:", error);
       }
     } else {
-      console.log('Image capture was canceled.');
+      console.log("Image capture was canceled.");
     }
+
   };
 
   useEffect(() => {

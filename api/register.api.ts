@@ -58,6 +58,7 @@ export const updateProfile = async (data: any) => {
 // Function to upload the file
 
 import { ImagePickerAsset } from 'expo-image-picker'; // Import this if using TypeScript
+import { ToastAndroid } from 'react-native';
 
 export const convertToFile = (asset: ImagePickerAsset): File => {
   // The `uri` needs to be formatted and the file needs to be transformed into a File object.
@@ -74,34 +75,48 @@ export const convertToFile = (asset: ImagePickerAsset): File => {
 };
 
 
-
 export const uploadFile = async (file: any): Promise<string> => {
+  console.log("Starting file conversion...");  // Log when conversion begins
+  const files = convertToFile(file);
 
-  
-  const files = convertToFile(file);  
+  console.log("Converted file:", files);  // Log the converted file object
+
   try {
     // Create a new FormData object to hold the file
     const formData = new FormData();
+    console.log("Created FormData object.");  // Log when FormData is created
 
     // Correctly append the file to FormData
     formData.append('docs', files); // Appending the file directly
-
+    console.log("Appended file to FormData.");  // Log after file is appended
 
     // Send the request to the backend
+    console.log("Sending request to backend...");
     const res = await USER_API.post('/api/upload', formData, {
       headers: {
         'content-type': 'multipart/form-data',
       },
       onUploadProgress: (progressEvent: any) => {
-        if (progressEvent.total < 1024000) {
-          // Optional: Show upload progress
+        // Optional: Log progress (can remove this if not needed)
+        if (progressEvent.total) {
+          ToastAndroid.show(`Upload progress: ${progressEvent?.total}%`, ToastAndroid.SHORT); 
         }
       },
     });
 
+    console.log("Server response received:", res);  // Log the response from the server
     return res.data.url; // Assuming the server responds with the file URL
+
   } catch (err: any) {
-    console.log(err); // Log error for debugging
+    // Log the error for debugging
+    console.error("Error occurred during file upload:", err);
+
+    // If the error has a response object (e.g., from the server), log it
+    if (err.response) {
+      console.error("Error response from server:", err.response);
+    }
+
+    // If there’s no specific message in the response, provide a generic error message
     throw new Error(err.response?.data?.msg || 'Upload failed');
   }
 };

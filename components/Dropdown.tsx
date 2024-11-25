@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, TextInput, FlatList, StyleSheet } from 'react-native';
+import { FlatList, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
 interface DropdownProps {
   label?: string;
@@ -119,6 +119,7 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 14,
     zIndex: 0,
+    marginVertical:10
   },
   iconContainer: {
     marginLeft: 10,
