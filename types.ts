@@ -95,3 +95,16 @@ export interface LeaveType {
   endDate: string;
   status: boolean | string;
 }
+
+export interface SalaryType {
+  _id: string;
+  date: string;
+  endDate: string;
+  userId: string;
+  status: boolean;
+  pagibig: number;
+  philhealth: number;
+  insurance: number;
+  sss: number;
+  total: number;
+}

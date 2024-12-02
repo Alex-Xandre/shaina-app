@@ -61,8 +61,6 @@ const Waiting_Driver_Screen = () => {
     getUsers();
   }, []);
 
-  console.log(shifts, 'hey');
-
   useEffect(() => {
     const getLocation = async () => {
       let { status } = await Location.requestForegroundPermissionsAsync();
@@ -299,8 +297,12 @@ const Waiting_Driver_Screen = () => {
     if (user.role === 'hr') {
       return <HomeHr />;
     }
+    if (user.role === 'act') {
+      return <HomeHr />;
+    }
   };
 
+  console.log(user.role)
   return (
     <View style={styles.container}>
       <AppSidebar />

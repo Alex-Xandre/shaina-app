@@ -11,6 +11,7 @@ import Card from './Card';
 import Table from '@/components/Table';
 import { convertTo12HourFormat } from '@/components/helpers/formatto12Hours';
 import { TouchableOpacity } from 'react-native-gesture-handler';
+import { ShiftType } from '@/types';
 const headers = [
   { header: 'User ID', accessor: 'userId' },
   { header: 'Name', accessor: 'name' },
@@ -46,27 +47,25 @@ const Index = () => {
   }, []);
 
   const filteredShifts = shifts
-  .filter((shift) => {
-   
-    const [month, day, year] = shift.date.split('-').map(Number);
-    const shiftDate = new Date(year, month - 1, day);
-    
-    
-    const start = new Date(startDate);
-    const end = new Date(endDate);
+    .filter((shift) => {
+      const [month, day, year] = shift.date.split('-').map(Number);
+      const shiftDate = new Date(year, month - 1, day);
 
-    return shiftDate >= start && shiftDate <= end;
-  })
-  .sort((a, b) => {
-    // Convert both dates to YYYY-MM-DD format
-    const [monthA, dayA, yearA] = a.date.split('-').map(Number);
-    const [monthB, dayB, yearB] = b.date.split('-').map(Number);
+      const start = new Date(startDate);
+      const end = new Date(endDate);
 
-    const dateA = new Date(yearA, monthA - 1, dayA);
-    const dateB = new Date(yearB, monthB - 1, dayB);
+      return shiftDate >= start && shiftDate <= end;
+    })
+    .sort((a, b) => {
+      // Convert both dates to YYYY-MM-DD format
+      const [monthA, dayA, yearA] = a.date.split('-').map(Number);
+      const [monthB, dayB, yearB] = b.date.split('-').map(Number);
 
-    return dateA.getTime() - dateB.getTime();
-  });
+      const dateA = new Date(yearA, monthA - 1, dayA);
+      const dateB = new Date(yearB, monthB - 1, dayB);
+
+      return dateA.getTime() - dateB.getTime();
+    });
 
   // console.log(filteredShifts,"helo", shifts)
 
@@ -184,7 +183,9 @@ const Index = () => {
               ?.filter((x) => x?.userId?.toLowerCase().includes(searchId?.toLowerCase()))}
             handleSearch={(e) => setSearchId(e)}
             columns={headers as any}
-            onEdit={(item) => nav(`new?=${(item as any)._id}`, { state: { isEdit: true } })}
+            onEdit={(item: ShiftType) => {
+              nav.navigate('shift/new', { data: item._id });
+            }}
             onRemove={function (): void {
               throw new Error('Function not implemented.');
             }}
@@ -280,8 +281,8 @@ const styles = StyleSheet.create({
   },
   dateText: {
     backgroundColor: '#f0f0f0',
-    paddingHorizontal: 5,
-    paddingVertical: 4,
+    paddingHorizontal: 15,
+    paddingVertical: 10,
     borderRadius: 5,
   },
 });

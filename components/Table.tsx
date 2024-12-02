@@ -67,22 +67,29 @@ const Table = <T,>({
       borderColor: '#ccc',
     },
     cardHeader: {
+      flexDirection: 'row',
+      flexWrap: 'wrap', // Allow items to wrap into multiple rows
+      justifyContent: 'space-between',
       marginBottom: 10,
     },
     cardItem: {
-      marginBottom: 5,
+      width: '48%', // Each item will take up roughly half of the card's width
+      marginBottom: 10,
     },
     cardLabel: {
       fontWeight: 'bold',
+      color: '#333',
+      fontSize: 12,
     },
     cardValue: {
       color: '#333',
       fontSize: 14,
     },
     actions: {
+      marginTop: 10,
+      alignItems: 'center',
       flexDirection: 'row',
       justifyContent: 'space-between',
-      marginTop: 10,
     },
     actionButton: {
       padding: 8,
@@ -173,35 +180,24 @@ const Table = <T,>({
                 style={styles.card}
               >
                 <View style={styles.cardHeader}>
-                  {columns.map((column, columnIndex) => (
-                    <View
-                      key={columnIndex}
-                      style={styles.cardItem}
-                    >
-                      <Text style={styles.cardLabel}>{column.header}:</Text>
-                      <Text
-                        style={[
-                          styles.cardValue,
-                          {
-                            backgroundColor: title === 'applicant' ? '#f0f0f0' : 'transparent',
-                            color:
-                              title === 'User'
-                                ? roleColor[
-                                    column.render
-                                      ? column.render(row[column.accessor], row)
-                                      : (row[column.accessor] as any)
-                                  ]
-                                : '#000',
-                          },
-                        ]}
+                  {/* Render columns dynamically */}
+                  {columns.map((column, columnIndex) => {
+                    return (
+                      <View
+                        key={columnIndex}
+                        style={styles.cardItem}
                       >
-                        {column.render ? column.render(row[column.accessor], row) : (row[column.accessor] as string)}
-                      </Text>
-                    </View>
-                  ))}
+                        <Text style={styles.cardLabel}>{column.header}:</Text>
+                        <Text style={styles.cardValue}>
+                          {column.render ? column.render(row[column.accessor], row) : (row[column.accessor] as string)}
+                        </Text>
+                      </View>
+                    );
+                  })}
                 </View>
 
-                {user.role !== 'user' && (
+                {/* Action Button */}
+                {user.role !== 'user' && title !=="Salary" &&  (
                   <View style={styles.actions}>
                     <TouchableOpacity
                       onPress={() => onEdit(row)}
@@ -214,7 +210,7 @@ const Table = <T,>({
                         onPress={() => onViewPayment && onViewPayment(row)}
                         style={styles.actionButton}
                       >
-                        <Text style={styles.actionText}>{(row as any)?.salaryIsPaid ? 'Paid' : 'Mark as Paid'}</Text>
+                        <Text style={styles.actionText}>{(row as any)?.salaryIsPaid ? 'Done' : 'Mark as Done'}</Text>
                       </TouchableOpacity>
                     )}
                   </View>

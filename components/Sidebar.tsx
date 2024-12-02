@@ -45,9 +45,9 @@ const AppSidebar: React.FC = () => {
 
   const MenuAcc = useMemo(
     () => [
-      { title: 'Dashboard', url: 'Dashboard', icon: <HomeIcon  color='#fff'/> },
+      { title: 'Dashboard', url: 'home', icon: <HomeIcon  color='#fff'/> },
       { title: 'Payroll', url: 'Payroll', icon: <BanknotesIcon   color='#fff'/> },
-      { title: 'Employees', url: 'Employees', icon: <UserIcon   color='#fff'/> },
+      { title: 'Employees', url: 'employee/index', icon: <UserIcon   color='#fff'/> },
     ],
     []
   );

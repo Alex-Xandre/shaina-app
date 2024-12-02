@@ -2,7 +2,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { AttendanceType, LeaveType, ShiftType, UserTypes } from '@/types';
+import { AttendanceType, LeaveType, SalaryType, ShiftType, UserTypes } from '@/types';
 
 export interface AuthState {
   user: any;
@@ -12,6 +12,7 @@ export interface AuthState {
   shifts: ShiftType[];
   attendance: AttendanceType[];
   leave: LeaveType[];
+  salary: SalaryType[];
 }
 
 const initialState: AuthState = {
@@ -22,6 +23,7 @@ const initialState: AuthState = {
   shifts: [],
   attendance: [],
   leave: [],
+  salary: [],
 };
 
 const authSlice = createSlice({
@@ -54,6 +56,9 @@ const authSlice = createSlice({
 
     fetchAttendance: (state, action: PayloadAction<{ attendance: AttendanceType[] }>) => {
       state.attendance = action.payload.attendance;
+    },
+    fetchPay: (state, action: PayloadAction<{ salary: SalaryType[] }>) => {
+      state.salary = action.payload.salary;
     },
 
     addUsers: (state, action: PayloadAction<UserTypes>) => {
@@ -90,11 +95,24 @@ const authSlice = createSlice({
         state.shifts.push(newShift);
       }
     },
+
+    addSalary: (state, action: PayloadAction<SalaryType>) => {
+      const newSalary = action.payload;
+      const existingSalaryIndex = state.salary.findIndex((salary) => salary._id === newSalary._id);
+
+      if (existingSalaryIndex !== -1) {
+        state.salary[existingSalaryIndex] = { ...state.salary[existingSalaryIndex], ...newSalary };
+      } else {
+        state.salary.push(newSalary);
+      }
+    },
   },
 });
 
 export const {
   login,
+  addSalary,
+  fetchPay,
   signout,
   fetchUsers,
   addUsers,

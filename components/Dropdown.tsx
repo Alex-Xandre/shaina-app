@@ -119,6 +119,7 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 14,
     zIndex: 0,
+    paddingVertical:5
   },
   iconContainer: {
     marginLeft: 10,

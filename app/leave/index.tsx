@@ -11,6 +11,7 @@ import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import { PlusIcon } from 'react-native-heroicons/outline';
 import Card from './Card';
+import { LeaveType } from '@/types';
 
 const Index = () => {
   const headers = [
@@ -77,9 +78,11 @@ const Index = () => {
                   status: x.status ? 'Confirmed' : 'Unconfirmed',
                 };
               })
-              ?.filter((x) => x?.userId?.toLowerCase().includes(searchId?.toLowerCase()))}
+              ?.filter((x) => x?.userId?.toLowerCase().includes(searchId?.toLowerCase())) as any}
             columns={headers as any}
-            onEdit={(item) => console.log('first')}
+            onEdit={(item: LeaveType) => {
+              nav.navigate('leave/new', { data: item._id });
+            }}
             onRemove={function (): void {
               throw new Error('Function not implemented.');
             }}

@@ -7,15 +7,17 @@ import Dropdown from '@/components/Dropdown';
 import Button from '@/components/Button';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import Table from '@/components/Table';
-import { CheckCircleIcon } from 'react-native-heroicons/outline';
-import { formatDate } from '@/components/helpers/formatDateShift';
+
 import { ScrollView } from 'react-native-gesture-handler';
-import { getAttendance } from '@/api/attendance.api';
-import { fetchAttendance, fetchShifts, fetchUsers } from '@/state/AuthReducer';
-import { getTasks } from '@/api/tasks.api';
+import { getAttendance, registerAttendance } from '@/api/attendance.api';
+import { fetchAttendance, fetchPay, fetchShifts, fetchUsers } from '@/state/AuthReducer';
+import { getPay, getTasks } from '@/api/tasks.api';
 import { getAllUser } from '@/api/get.info.api';
 import Card from './Card';
 import SalaryCard from './SalaryCard';
+import PayCard from './PayCard';
+import { useNavigation } from 'expo-router';
+import { AttendanceType } from '@/types';
 const index = () => {
   const headers = [
     {
@@ -40,6 +42,29 @@ const index = () => {
     },
   ];
 
+  const salaryHeader = [
+    {
+      header: 'User ID',
+      accessor: 'userId',
+    },
+    {
+      header: 'Name',
+      accessor: 'name',
+    },
+    {
+      header: 'Date',
+      accessor: 'date',
+    },
+    // {
+    //   header: 'Deductions',
+    //   accessor: 'deduction',
+    // },
+    {
+      header: 'Total',
+      accessor: 'total',
+    },
+  ];
+
   const [isAttendance, setIsAttendance] = useState(false);
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
@@ -47,13 +72,16 @@ const index = () => {
   const [status, setStatus] = useState('all');
   const [showStartDatePicker, setShowStartDatePicker] = useState(false);
   const [showEndDatePicker, setShowEndDatePicker] = useState(false);
-  const { user } = useAuth();
+  const { user, salary } = useAuth();
 
   //get attendance
   useEffect(() => {
     const getUsers = async () => {
       const getAtt = await getAttendance();
       dispatch(fetchAttendance({ attendance: getAtt }));
+
+      const getPays = await getPay();
+      dispatch(fetchPay({ salary: getPays }));
     };
     getUsers();
   }, []);
@@ -168,6 +196,7 @@ const index = () => {
     }
     return [];
   };
+  const nav: any = useNavigation();
 
   const attendanceData = attendance.filter((x) => (status === 'all' ? x : x.status === status));
   return (
@@ -176,7 +205,12 @@ const index = () => {
       <View style={styles.content}>
         <View style={styles.header}>
           <Text style={styles.title}>List of {!isAttendance ? 'Attendance' : 'Salaries'}</Text>
-          {user.role !== 'user' && <Button text='Attendance' />}
+          {/* {user.role !== 'user' && (
+            <Button
+              text='Attendance'
+              onClick={() => nav.navigate('attendance/new')}
+            />
+          )} */}
         </View>
 
         <View
@@ -281,15 +315,29 @@ const index = () => {
             }
             // submitSelected={(e) => handleSubmit(e)}
             handleSearch={(e) => setSearchId(e)}
-            title='Attendance'
+            title={!isAttendance ? 'Attendance' : 'Salary'}
             isPay={isAttendance}
-            data={filteredData()
-              .filter((record) => status === 'all' || (record && record.status === status))
-              // ?.filter((x) => x?.userId?.toLowerCase().includes(searchId?.toLowerCase()))
-              // // .filter((x) => shifts.find((y) => y.date === formatDate(new Date(x === null ? Date.now() : x.date))))
-              ?.filter((x) => (isAttendance ? x !== null && x.status : x))}
-            columns={headers as any}
-            onEdit={(item) => console.log('first')}
+            data={
+              !isAttendance
+                ? filteredData()
+                    .filter((record) => status === 'all' || (record && record.status === status))
+                    ?.filter((x) => x?.userId?.toLowerCase().includes(searchId?.toLowerCase()))
+                    ?.filter((x) => (isAttendance ? x !== null && x.status : x))
+                : (salary.map((x) => {
+                    const user = allUser.find((y) => y._id === x.userId);
+                    return {
+                      date: new Date(x.date).toLocaleDateString(),
+                      total: x.total,
+                      userId: user?.userId,
+                      name: user?.firstName + ' ' + user?.lastName,
+                      salaryIsPaid: x.status,
+                    };
+                  }) as any)
+            }
+            columns={!isAttendance ? (headers as any) : salaryHeader}
+            onEdit={(item: AttendanceType) => {
+              nav.navigate('attendance/new', { data: item._id });
+            }}
             onRemove={function (): void {
               throw new Error('Function not implemented.');
             }}
@@ -301,30 +349,25 @@ const index = () => {
 
               const tI = data.timeIn;
               const tO = data.timeOut;
-              // const handleSubmit = async () => {
-              //   const res = await registerAttendance({
-              //     ...data,
-              //     salaryIsPaid: true,
-              //     timeIn: tI === 'N/A' || tI === 'NOT CLOCKED IN' ? '00:00' : removeAmPm(data.timeIn),
-              //     timeOut: tO === 'N/A' || tO === 'NOT CLOCKED IN' ? '00:00' : removeAmPm(data.timeOut),
-              //     userId: allUser.find((x) => x.userId === data.userId)?._id,
-              //   });
+              const handleSubmit = async () => {
+                const res = await registerAttendance({
+                  ...data,
+                  salaryIsPaid: true,
+                  timeIn: tI === 'N/A' || tI === 'NOT CLOCKED IN' ? '00:00' : removeAmPm(data.timeIn),
+                  timeOut: tO === 'N/A' || tO === 'NOT CLOCKED IN' ? '00:00' : removeAmPm(data.timeOut),
+                  userId: allUser.find((x) => x.userId === data.userId)?._id,
+                });
 
-              //   if (res.success === false) return toast.error(res.data?.msg || 'Error');
+                if (res.success === false) return;
 
-              //   toast.success('Salary updated', {
-              //     position: 'bottom-right',
-              //   });
-              //   dispatch({ type: 'ADD_ATTENDANCE', payload: res });
-              // };
+                dispatch({ type: 'ADD_ATTENDANCE', payload: res });
+              };
 
-              // if (data.salaryIsPaid) {
-              //   toast.error('Salary already marked as paid', {
-              //     position: 'bottom-right',
-              //   });
-              // } else {
-              //   handleSubmit();
-              // }
+              if (data.salaryIsPaid) {
+                //
+              } else {
+                handleSubmit();
+              }
             }}
           />
         ) : (
@@ -332,13 +375,29 @@ const index = () => {
             style={{ paddingRight: 10, flex: 1, backgroundColor: '#fff' }}
             showsVerticalScrollIndicator={false}
           >
-            {attendanceData.length === 0 ? (
-              <Text style={{ marginTop: 10 }}>Attendance List Empty</Text>
-            ) : (
+            {attendanceData.length === 0 && <Text style={{ marginTop: 10 }}>Attendance List Empty</Text>}
+
+            {!isAttendance &&
               attendanceData.map((x) => {
-                return !isAttendance ? <Card data={x} /> : <SalaryCard data={x} />;
-              })
-            )}
+                return (
+                  <Card
+                    key={x._id}
+                    data={x}
+                  />
+                );
+              })}
+
+            {isAttendance &&
+              salary
+                .filter((x) => x.userId === user._id)
+                .map((y) => {
+                  return (
+                    <PayCard
+                      key={y._id}
+                      data={y}
+                    />
+                  );
+                })}
           </ScrollView>
         )}
       </View>
@@ -359,7 +418,7 @@ const styles = StyleSheet.create({
     margin: 0,
     marginTop: 100,
     position: 'relative',
-    paddingRight:10
+    paddingRight: 10,
   },
 
   tableContainer: {
@@ -444,9 +503,10 @@ const styles = StyleSheet.create({
   },
   dateText: {
     backgroundColor: '#f0f0f0',
-    paddingHorizontal: 5,
-    paddingVertical: 4,
+    paddingHorizontal: 8,
+    paddingVertical: 9,
     borderRadius: 5,
+    marginTop: 3.5,
   },
 });
 

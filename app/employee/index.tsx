@@ -38,8 +38,6 @@ const Index = () => {
   const { allUser, dispatch } = useAuth();
   const nav: any = useNavigation();
 
-  console.log(searchId);
-
   useEffect(() => {
     const getUsers = async () => {
       const getAllUsers = await getAllUser();

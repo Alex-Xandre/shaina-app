@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { login, signout } from './AuthReducer';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { AppDispatch, RootState } from '@/store';
-import { AttendanceType, LeaveType, ShiftType, UserTypes } from '@/types';
+import { AttendanceType, LeaveType, SalaryType, ShiftType, UserTypes } from '@/types';
 import { getUser } from '@/api/user.api';
 import { useNavigation } from 'expo-router';
 
@@ -22,14 +22,17 @@ export const AuthContext = createContext<
       shifts: ShiftType[];
       attendance: AttendanceType[];
       leave: LeaveType[];
+      salary: SalaryType[];
     }
   | undefined
 >(undefined);
 
 export const AuthContextProvider = ({ children }: AuthContextProps) => {
   const dispatch = useDispatch();
-  const navigation:any = useNavigation()
-  const { isLoggedIn, user, token, allUser, shifts, attendance, leave } = useSelector((state: RootState) => state.auth);
+  const navigation: any = useNavigation();
+  const { isLoggedIn, user, token, allUser, shifts, attendance, leave, salary } = useSelector(
+    (state: RootState) => state.auth
+  );
 
   React.useEffect(() => {
     const loadAuthState = async () => {
@@ -39,7 +42,7 @@ export const AuthContextProvider = ({ children }: AuthContextProps) => {
           const res = await getUser();
           dispatch(login({ user: res, token: storedToken }));
         } else {
-          navigation.navigate("auth/login")
+          navigation.navigate('auth/login');
           dispatch(signout());
         }
       } catch (error) {
@@ -70,7 +73,7 @@ export const AuthContextProvider = ({ children }: AuthContextProps) => {
   }, [token]);
 
   return (
-    <AuthContext.Provider value={{ isLoggedIn, user, token, allUser, shifts, attendance, leave, dispatch }}>
+    <AuthContext.Provider value={{ isLoggedIn, user, token, allUser, shifts, attendance, leave, dispatch, salary }}>
       {children}
     </AuthContext.Provider>
   );

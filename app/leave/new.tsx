@@ -1,16 +1,15 @@
 import AppSidebar from '@/components/Sidebar';
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity, TextInput, ToastAndroid } from 'react-native';
-import { ScrollView } from 'react-native-gesture-handler';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
-import DateTimePicker from '@react-native-community/datetimepicker';
-import { LeaveType } from '@/types';
-import { useAuth } from '@/state/AuthContext';
-import { formatDate } from '@/components/helpers/formatDateShift';
 import { getLeave, registerLeave } from '@/api/leave.api';
-import { fetchLeaves } from '@/state/AuthReducer';
-import Dropdown from '@/components/Dropdown';
 import Button from '@/components/Button';
+import Dropdown from '@/components/Dropdown';
+import { useAuth } from '@/state/AuthContext';
+import { fetchLeaves } from '@/state/AuthReducer';
+import { LeaveType } from '@/types';
+import DateTimePicker from '@react-native-community/datetimepicker';
+import { useRoute } from '@react-navigation/native';
 import { useNavigation } from 'expo-router';
 
 const NewLeave = () => {
@@ -18,6 +17,7 @@ const NewLeave = () => {
   const [endDate, setEndDate] = useState('');
   const [showStartDatePicker, setShowStartDatePicker] = useState(false);
   const [showEndDatePicker, setShowEndDatePicker] = useState(false);
+  const { allUser } = useAuth()
 
   const [formData, setFormData] = React.useState<LeaveType>({
     _id: 'text',
@@ -41,25 +41,9 @@ const NewLeave = () => {
     setEndDate(today);
   }, []);
 
-  const getDateRangeArray = (startDateStr: string, endDateStr: string) => {
-    const dates = [];
+  const item = useRoute()
 
-    let startDate = new Date(startDateStr);
-    let endDate = new Date(endDateStr);
-
-    if (startDate > endDate) {
-      [startDate, endDate] = [endDate, startDate];
-    }
-
-    let currentDate = new Date(startDate);
-
-    while (currentDate <= endDate) {
-      dates.push(formatDate(new Date(currentDate)));
-      currentDate.setDate(currentDate.getDate() + 1);
-    }
-
-    return dates;
-  };
+  console.log(item)
 
   const navigate: any = useNavigation();
 
@@ -98,6 +82,7 @@ const NewLeave = () => {
       <View style={styles.content}>
         <Text style={styles.title}> New Leave</Text>
 
+
         {showStartDatePicker && (
           <DateTimePicker
             value={new Date(startDate)}
@@ -126,6 +111,30 @@ const NewLeave = () => {
         )}
         <View style={styles.form}>
           <View style={{ width: '100%', position: 'relative', zIndex: 10000, marginTop: -50 }}>
+
+
+            {user.role !== "user" &&
+              <View style={{ marginBottom: 10, marginTop: 50, }}>
+                <Dropdown
+
+                  label='Employee Name'
+                  value={formData.userId}
+                  isInputFilter={true}
+
+                  options={allUser?.filter((x) => x.firstName).map((x) => {
+                    return {
+                      value: x._id,
+                      label: x?.firstName + ' ' + x?.lastName,
+                    };
+                  })}
+                  id='user-id-dropdown'
+
+                  onChange={(e) => {
+                    setFormData({ ...formData, userId: e as string });
+                  }}
+                /></View>
+
+            }
             <View style={styles.datePickerContainer}>
               <View
                 style={{
@@ -137,6 +146,7 @@ const NewLeave = () => {
                 }}
               >
                 <Dropdown
+
                   label='Leave Type'
                   disabled={formData.status === true}
                   value={formData.leaveType}
@@ -155,24 +165,28 @@ const NewLeave = () => {
                   onChange={(e) => setFormData({ ...formData, leaveType: e as string })}
                 />
               </View>
-              <TouchableOpacity
-                onPress={() => setShowStartDatePicker(true)}
-                style={{ marginTop: 80 }}
-              >
-                <Text style={styles.dateText}>{startDate}</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={() => setShowEndDatePicker(true)}
-                style={{ marginTop: 80 }}
-              >
-                <Text style={styles.dateText}>{endDate}</Text>
-              </TouchableOpacity>
+
+
+              <View style={{ flexDirection: "row", marginTop: 42 }}>
+                <TouchableOpacity
+                  onPress={() => setShowStartDatePicker(true)}
+                  style={{ marginTop: 60 }}
+                >
+                  <Text style={styles.dateText}>{startDate}</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => setShowEndDatePicker(true)}
+                  style={{ marginTop: 60, marginLeft: 10 }}
+                >
+                  <Text style={styles.dateText}>{endDate}</Text>
+                </TouchableOpacity>
+              </View>
             </View>
           </View>
           <Button
             text='Submit Leave Request'
             onClick={handleSubmit}
-            customStyle={{ marginTop: user.role === 'user' && 100 }}
+            customStyle={{ marginTop: user.role === 'user' ? 100 : 30 }}
           />
         </View>
       </View>
@@ -249,7 +263,7 @@ const styles = StyleSheet.create({
   dateText: {
     backgroundColor: '#f0f0f0',
     paddingHorizontal: 5,
-    paddingVertical: 4,
+    paddingVertical: 15,
     borderRadius: 5,
   },
   dateSeparator: {

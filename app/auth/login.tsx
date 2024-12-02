@@ -42,7 +42,7 @@ const Login = () => {
     const res = await loginUser({ userId, password });
 
     if (res.success === false) {
-      console.log(res);
+  
       ToastAndroid.show(res.data?.msg || 'Error', ToastAndroid.SHORT);
 
       return;
