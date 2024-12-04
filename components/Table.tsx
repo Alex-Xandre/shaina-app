@@ -197,7 +197,7 @@ const Table = <T,>({
                 </View>
 
                 {/* Action Button */}
-                {user.role !== 'user' && title !=="Salary" &&  (
+                {user.role !== 'user' && title !== 'Salary' && title !== 'Payroll' && title !== 'Leaves' && (
                   <View style={styles.actions}>
                     <TouchableOpacity
                       onPress={() => onEdit(row)}

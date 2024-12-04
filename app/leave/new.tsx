@@ -17,7 +17,7 @@ const NewLeave = () => {
   const [endDate, setEndDate] = useState('');
   const [showStartDatePicker, setShowStartDatePicker] = useState(false);
   const [showEndDatePicker, setShowEndDatePicker] = useState(false);
-  const { allUser } = useAuth()
+  const { allUser } = useAuth();
 
   const [formData, setFormData] = React.useState<LeaveType>({
     _id: 'text',
@@ -41,9 +41,7 @@ const NewLeave = () => {
     setEndDate(today);
   }, []);
 
-  const item = useRoute()
-
-  console.log(item)
+  const item = useRoute();
 
   const navigate: any = useNavigation();
 
@@ -82,7 +80,6 @@ const NewLeave = () => {
       <View style={styles.content}>
         <Text style={styles.title}> New Leave</Text>
 
-
         {showStartDatePicker && (
           <DateTimePicker
             value={new Date(startDate)}
@@ -111,30 +108,27 @@ const NewLeave = () => {
         )}
         <View style={styles.form}>
           <View style={{ width: '100%', position: 'relative', zIndex: 10000, marginTop: -50 }}>
-
-
-            {user.role !== "user" &&
-              <View style={{ marginBottom: 10, marginTop: 50, }}>
+            {user.role !== 'user' && (
+              <View style={{ marginBottom: 10, marginTop: 50 }}>
                 <Dropdown
-
                   label='Employee Name'
                   value={formData.userId}
                   isInputFilter={true}
-
-                  options={allUser?.filter((x) => x.firstName).map((x) => {
-                    return {
-                      value: x._id,
-                      label: x?.firstName + ' ' + x?.lastName,
-                    };
-                  })}
+                  options={allUser
+                    ?.filter((x) => x.firstName)
+                    .map((x) => {
+                      return {
+                        value: x._id,
+                        label: x?.firstName + ' ' + x?.lastName,
+                      };
+                    })}
                   id='user-id-dropdown'
-
                   onChange={(e) => {
                     setFormData({ ...formData, userId: e as string });
                   }}
-                /></View>
-
-            }
+                />
+              </View>
+            )}
             <View style={styles.datePickerContainer}>
               <View
                 style={{
@@ -146,7 +140,6 @@ const NewLeave = () => {
                 }}
               >
                 <Dropdown
-
                   label='Leave Type'
                   disabled={formData.status === true}
                   value={formData.leaveType}
@@ -166,17 +159,16 @@ const NewLeave = () => {
                 />
               </View>
 
-
-              <View style={{ flexDirection: "row", marginTop: 42 }}>
+              <View style={{ flexDirection: 'row', marginTop: 42 }}>
                 <TouchableOpacity
                   onPress={() => setShowStartDatePicker(true)}
-                  style={{ marginTop: 60 }}
+                  style={{ marginTop: 52 }}
                 >
                   <Text style={styles.dateText}>{startDate}</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                   onPress={() => setShowEndDatePicker(true)}
-                  style={{ marginTop: 60, marginLeft: 10 }}
+                  style={{ marginTop: 52, marginLeft: 10 }}
                 >
                   <Text style={styles.dateText}>{endDate}</Text>
                 </TouchableOpacity>
@@ -210,8 +202,9 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 16,
-    fontWeight: '600',
-    marginTop: 20,
+    fontWeight: '800',
+
+    marginVertical: 10,
   },
   chevron: {
     marginHorizontal: 8,
@@ -220,7 +213,7 @@ const styles = StyleSheet.create({
     opacity: 0.7,
   },
   form: {
-    padding: 16,
+    padding: 4,
     borderRadius: 8,
     shadowColor: '#000',
     shadowOpacity: 0.2,
@@ -262,8 +255,8 @@ const styles = StyleSheet.create({
   },
   dateText: {
     backgroundColor: '#f0f0f0',
-    paddingHorizontal: 5,
-    paddingVertical: 15,
+    paddingHorizontal: 15,
+    paddingVertical: 10,
     borderRadius: 5,
   },
   dateSeparator: {

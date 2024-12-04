@@ -162,25 +162,26 @@ const Index = () => {
           <Table
             itemsPerPage={12}
             title='Attendance'
-            data={filteredShifts
+            data={
+              filteredShifts
+                .map((x) => {
+                  const user = allUser.find((y) => y._id === x.userId);
 
-              .map((x) => {
-                const user = allUser.find((y) => y._id === x.userId);
+                  const hours = Math.floor(x.dutyHours / 60);
+                  const minutes = x.dutyHours % 60;
 
-                const hours = Math.floor(x.dutyHours / 60);
-                const minutes = x.dutyHours % 60;
-
-                return {
-                  _id: x._id,
-                  userId: user && user.userId,
-                  name: user && `${user.firstName} ${user.lastName}`,
-                  date: x.date,
-                  timeIn: convertTo12HourFormat(x.timeIn),
-                  timeOut: convertTo12HourFormat(x.timeOut),
-                  dutyHours: `${hours}:${String(minutes).padStart(2, '0')} Hours`,
-                };
-              })
-              ?.filter((x) => x?.userId?.toLowerCase().includes(searchId?.toLowerCase()))}
+                  return {
+                    _id: x._id,
+                    userId: user && user.userId,
+                    name: user && `${user.firstName} ${user.lastName}`,
+                    date: x.date,
+                    timeIn: convertTo12HourFormat(x.timeIn),
+                    timeOut: convertTo12HourFormat(x.timeOut),
+                    dutyHours: `${hours}:${String(minutes).padStart(2, '0')} Hours`,
+                  };
+                })
+                ?.filter((x) => x?.userId?.toLowerCase().includes(searchId?.toLowerCase())) as any
+            }
             handleSearch={(e) => setSearchId(e)}
             columns={headers as any}
             onEdit={(item: ShiftType) => {

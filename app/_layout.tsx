@@ -53,6 +53,9 @@ function LayoutWithAuth() {
 
           <Stack.Screen name='leave/index' />
           <Stack.Screen name='leave/new' />
+
+          <Stack.Screen name='payroll/new' />
+          <Stack.Screen name='payroll/new' />
           {/* <Stack.Screen name='employee/index' /> 
           <Stack.Screen name='employee/new' /> */}
         </>

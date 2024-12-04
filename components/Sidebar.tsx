@@ -34,20 +34,21 @@ const AppSidebar: React.FC = () => {
 
   const MenuHR = useMemo(
     () => [
-      { title: 'Dashboard', url: 'home', icon: <HomeIcon   color='#fff' /> },
-      { title: 'Employees', url: 'employee/index', icon: <UserIcon  color='#fff' /> },
-      { title: 'Attendance', url: 'attendance/index', icon: <DocumentTextIcon  color='#fff' /> },
-      { title: 'Leaves', url: 'leave/index', icon: <FolderIcon   color='#fff'/> },
-      { title: 'Shift/Tasks', url: 'shift/index', icon: <FolderIcon  color='#fff' /> },
+      { title: 'Dashboard', url: 'home', icon: <HomeIcon color='#fff' /> },
+      { title: 'Employees', url: 'employee/index', icon: <UserIcon color='#fff' /> },
+      { title: 'Attendance', url: 'attendance/index', icon: <DocumentTextIcon color='#fff' /> },
+      { title: 'Leaves', url: 'leave/index', icon: <FolderIcon color='#fff' /> },
+      { title: 'Shift/Tasks', url: 'shift/index', icon: <FolderIcon color='#fff' /> },
     ],
     []
   );
 
   const MenuAcc = useMemo(
     () => [
-      { title: 'Dashboard', url: 'home', icon: <HomeIcon  color='#fff'/> },
-      { title: 'Payroll', url: 'Payroll', icon: <BanknotesIcon   color='#fff'/> },
-      { title: 'Employees', url: 'employee/index', icon: <UserIcon   color='#fff'/> },
+      { title: 'Dashboard', url: 'home', icon: <HomeIcon color='#fff' /> },
+      { title: 'Payroll', url: 'payroll/index', icon: <BanknotesIcon color='#fff' /> },
+      { title: 'Employees', url: 'employee/index', icon: <UserIcon color='#fff' /> },
+      { title: 'Leaves', url: 'leave/index', icon: <FolderIcon color='#fff' /> },
     ],
     []
   );
@@ -93,7 +94,15 @@ const AppSidebar: React.FC = () => {
             )}
           />
 
-          <View style={{ flexDirection: 'row', marginBottom: 100, width: '100%', justifyContent: 'space-between',alignItems:"center" }}>
+          <View
+            style={{
+              flexDirection: 'row',
+              marginBottom: 100,
+              width: '100%',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+            }}
+          >
             <TouchableOpacity
               onPress={() => handleNavigation('employee/new', 5)}
               style={{ flexDirection: 'row', alignItems: 'center' }}
@@ -107,7 +116,7 @@ const AppSidebar: React.FC = () => {
               <Text style={{ color: '#fff' }}>{user.firstName + ', ' + user.lastName}</Text>
             </TouchableOpacity>
             <TouchableOpacity
-            style={{backgroundColor:"#fff", padding:3, borderRadius:10}}
+              style={{ backgroundColor: '#fff', padding: 3, borderRadius: 10 }}
               onPress={async () => {
                 dispatch(signout());
                 navigation.navigate('index');

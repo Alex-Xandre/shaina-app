@@ -70,7 +70,7 @@ const Dropdown: React.FC<DropdownProps> = ({
                   setIsOpen(false);
                 }}
               >
-                <Text>{item.label}</Text>
+                <Text style={{ paddingVertical: 4 }}>{item.label}</Text>
               </TouchableOpacity>
             )}
           />
@@ -119,7 +119,7 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 14,
     zIndex: 0,
-    paddingVertical:5
+    paddingVertical: 5,
   },
   iconContainer: {
     marginLeft: 10,
@@ -132,7 +132,10 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     borderRadius: 4,
     elevation: 5,
-    zIndex: 10000000,
+    zIndex: 99,
+  },
+  dropdownContainerActive: {
+    top:0 !
   },
 
   filterInput: {
@@ -142,6 +145,9 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#ccc',
     borderRadius: 8,
+    marginTop:-40,
+    zIndex:100,
+    backgroundColor:"#fff"
   },
   option: {
     paddingVertical: 3,

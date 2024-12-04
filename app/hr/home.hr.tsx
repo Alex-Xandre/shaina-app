@@ -1,8 +1,11 @@
 import { useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useAuth } from '@/state/AuthContext';
-import { getPay } from '@/api/tasks.api';
-import { fetchPay } from '@/state/AuthReducer';
+import { getPay, getTasks } from '@/api/tasks.api';
+import { fetchAttendance, fetchLeaves, fetchPay, fetchShifts, fetchUsers } from '@/state/AuthReducer';
+import { getAttendance } from '@/api/attendance.api';
+import { getAllUser } from '@/api/get.info.api';
+import { getLeave } from '@/api/leave.api';
 
 const HomeHR = () => {
   const { attendance, leave, shifts, allUser, dispatch, salary } = useAuth();
@@ -10,14 +13,22 @@ const HomeHR = () => {
   const [searchId, setSearchId] = useState('');
 
   useEffect(() => {
-    const getUsers = async () => {
+    const getDatas = async () => {
       const getPays = await getPay();
       dispatch(fetchPay({ salary: getPays }));
+      const getAllShift = await getTasks();
+      dispatch(fetchShifts({ shift: getAllShift }));
+      const getAtt = await getAttendance();
+      dispatch(fetchAttendance({ attendance: getAtt }));
+      const getAllUsers = await getAllUser();
+      dispatch(fetchUsers({ users: getAllUsers }));
+      const getAllLeave = await getLeave();
+      dispatch(fetchLeaves({ leave: getAllLeave }));
     };
-    getUsers();
+    getDatas();
   }, []);
 
-  console.log(salary)
+
 
   function formatDateToDDMMYY(dateString: string) {
     const date = new Date(dateString);
@@ -101,9 +112,9 @@ const HomeHR = () => {
         <Text style={styles.cardValue}>{currentUnconfirmedLeaves}</Text>
         <View style={styles.cardDetails}>
           <Text style={styles.cardTitle}>Unconfirmed Leaves</Text>
-          <Text style={leavesChange >= 0 ? styles.changePositive : styles.changeNegative}>
+          {/* <Text style={leavesChange >= 0 ? styles.changePositive : styles.changeNegative}>
             {leavesChange.toFixed(2)}%
-          </Text>
+          </Text> */}
         </View>
       </View>
 
@@ -112,16 +123,16 @@ const HomeHR = () => {
         <Text style={styles.cardValue}>{todayShiftsCount}</Text>
         <View style={styles.cardDetails}>
           <Text style={styles.cardTitle}>Today's Shifts</Text>
-          <Text style={styles.changePositive}>{leavesChange.toFixed(2)}%</Text>
+          {/* <Text style={styles.changePositive}>{leavesChange.toFixed(2)}%</Text> */}
         </View>
       </View>
 
       {/* Total Employees Box */}
       <View style={[styles.card, { borderLeftColor: '#FFCE56' }]}>
-        <Text style={styles.cardValue}>{allUser.length}</Text>
+        <Text style={styles.cardValue}>{allUser.filter((x:any) => x.status !== false).length}</Text>
         <View style={styles.cardDetails}>
           <Text style={styles.cardTitle}>Total Employees</Text>
-          <Text style={styles.changePositive}>{leavesChange.toFixed(2)}%</Text>
+          {/* <Text style={styles.changePositive}>{leavesChange.toFixed(2)}%</Text> */}
         </View>
       </View>
 
