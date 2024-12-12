@@ -1,48 +1,63 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { StyleSheet, View, Text, Dimensions, TouchableOpacity, ToastAndroid, Image, TextInput } from 'react-native';
-import * as Location from 'expo-location';
-import MapView, { Marker } from 'react-native-maps';
-import { getAttendance, registerAttendance } from '@/api/attendance.api';
-import { useAuth } from '@/state/AuthContext';
-import AppSidebar from '@/components/Sidebar';
-import { addAttendance, fetchAttendance, fetchShifts, login, signout } from '@/state/AuthReducer';
-import { getTasks } from '@/api/tasks.api';
-import { uploadFile } from '@/api/register.api';
-import * as ImagePicker from 'expo-image-picker';
-import * as FileSystem from 'expo-file-system';
-import { FolderIcon } from 'react-native-heroicons/outline';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { getUser } from '@/api/get.info.api';
-import { useNavigation } from 'expo-router';
-import HomeHr from './hr/home.hr';
+import React, { useEffect, useRef, useState } from "react";
+import {
+  StyleSheet,
+  View,
+  Text,
+  Dimensions,
+  TouchableOpacity,
+  ToastAndroid,
+  Image,
+  TextInput,
+} from "react-native";
+import * as Location from "expo-location";
+import MapView, { Marker } from "react-native-maps";
+import { getAttendance, registerAttendance } from "@/api/attendance.api";
+import { useAuth } from "@/state/AuthContext";
+import AppSidebar from "@/components/Sidebar";
+import {
+  addAttendance,
+  fetchAttendance,
+  fetchShifts,
+  login,
+  signout,
+} from "@/state/AuthReducer";
+import { getTasks } from "@/api/tasks.api";
+import { uploadFile } from "@/api/register.api";
+import * as ImagePicker from "expo-image-picker";
+import * as FileSystem from "expo-file-system";
+import { FolderIcon } from "react-native-heroicons/outline";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { getUser } from "@/api/get.info.api";
+import { useNavigation } from "expo-router";
+import HomeHr from "./hr/home.hr";
 
-const windowWidth = Dimensions.get('window').width;
-const windowHeight = Dimensions.get('window').height;
+const windowWidth = Dimensions.get("window").width;
+const windowHeight = Dimensions.get("window").height;
 
 const Waiting_Driver_Screen = () => {
   const { user, attendance, dispatch, shifts, isLoggedIn } = useAuth();
   const [currentLocation, setCurrentLocation] = useState<any>(null);
   const [initialRegion, setInitialRegion] = useState<any>(null);
-  const [currentDate, setCurrentDate] = useState<string>('');
+  const [currentDate, setCurrentDate] = useState<string>("");
   const [data, setData] = useState<any>(null);
-  const [attendanceStatus, setAttendanceStatus] = useState<string>('');
+  const [attendanceStatus, setAttendanceStatus] = useState<string>("");
 
-  const [images, setImages] = useState('');
+  const [images, setImages] = useState("");
 
   const navigation: any = useNavigation();
   React.useEffect(() => {
     const loadAuthState = async () => {
       try {
-        const storedToken = await AsyncStorage.getItem('token');
+        const storedToken = await AsyncStorage.getItem("token");
         if (storedToken) {
           const res = await getUser();
           dispatch(login({ user: res, token: storedToken }));
         } else {
-          navigation.navigate('auth/login');
+          navigation.navigate("auth/login");
           dispatch(signout());
         }
       } catch (error) {
-        console.error('Error loading authentication state:', error);
+        console.error("Error loading authentication state:", error);
         dispatch(signout());
       }
     };
@@ -64,8 +79,8 @@ const Waiting_Driver_Screen = () => {
   useEffect(() => {
     const getLocation = async () => {
       let { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== 'granted') {
-        console.log('Permission to access location was denied');
+      if (status !== "granted") {
+        console.log("Permission to access location was denied");
         return;
       }
 
@@ -81,42 +96,47 @@ const Waiting_Driver_Screen = () => {
 
       const current = new Date();
       const options: Intl.DateTimeFormatOptions = {
-        weekday: 'long',
-        day: 'numeric',
-        month: 'long',
+        weekday: "long",
+        day: "numeric",
+        month: "long",
       };
-      setCurrentDate(current.toLocaleDateString('en-GB', options));
+      setCurrentDate(current.toLocaleDateString("en-GB", options));
     };
 
     getLocation();
 
     if (user && attendance?.length) {
-      const today = new Date().toISOString().split('T')[0];
+      const today = new Date().toLocaleDateString().split("T")[0];
       const todayRecord = attendance.find(
-        (record) => record.userId === user._id && new Date(record.date).toISOString().split('T')[0] === today
+        (record) =>
+          record.userId === user._id &&
+          new Date(record.date).toLocaleDateString().split("T")[0] === today
       );
 
       setData(todayRecord);
-      setAttendanceStatus(todayRecord ? (todayRecord.status as any) : '');
+      setAttendanceStatus(todayRecord ? (todayRecord.status as any) : "");
     }
   }, [attendance, user]);
   const handleTimeIn = async () => {
     const currentTime = new Date().toLocaleTimeString([], {
-      hour: '2-digit',
-      minute: '2-digit',
+      hour: "2-digit",
+      minute: "2-digit",
       hour12: false,
     });
 
-    if (images === '') {
-      return ToastAndroid.show('Please Attach a picture of your location', ToastAndroid.SHORT);
+    if (images === "") {
+      return ToastAndroid.show(
+        "Please Attach a picture of your location",
+        ToastAndroid.SHORT
+      );
     }
     const newAttendanceData = {
-      _id: 'new',
+      _id: "new",
       userId: user._id,
       date: new Date().toISOString(),
       timeIn: currentTime,
-      timeOut: '',
-      status: 'present',
+      timeOut: "",
+      status: "present",
       locationImage: images,
       location: {
         latitude: currentLocation.latitude,
@@ -129,13 +149,13 @@ const Waiting_Driver_Screen = () => {
     if (res.success === false) return;
 
     dispatch(addAttendance(res));
-    dispatch({ type: 'ADD_ATTENDANCE', payload: res });
+    dispatch({ type: "ADD_ATTENDANCE", payload: res });
   };
 
   const handleTimeOut = async () => {
     const currentTime = new Date().toLocaleTimeString([], {
-      hour: '2-digit',
-      minute: '2-digit',
+      hour: "2-digit",
+      minute: "2-digit",
       hour12: false,
     });
 
@@ -149,21 +169,37 @@ const Waiting_Driver_Screen = () => {
     const res = await registerAttendance(updatedAttendanceData);
 
     if (res.success === false) return;
-    dispatch({ type: 'ADD_ATTENDANCE', payload: res });
+    dispatch({ type: "ADD_ATTENDANCE", payload: res });
   };
 
   const convertTo12HourFormat = (time: string) => {
-    const [hours, minutes] = time.split(':');
-    const period = +hours >= 12 ? 'PM' : 'AM';
+    const [hours, minutes] = time.split(":");
+    const period = +hours >= 12 ? "PM" : "AM";
     const formattedHours = +hours % 12 || 12;
     return `${formattedHours}:${minutes} ${period}`;
   };
 
-  const today = new Date().toISOString().split('T')[0];
-  const targetDateFormatted = today.substring(5, 7) + '-' + today.substring(8, 10) + '-' + today.substring(0, 4);
+  const today = new Date().toLocaleDateString().split("T")[0];
+  console.log(today)
+  const targetDateFormatted = today.split("/")
+  console.log(targetDateFormatted)
+
+  const targetDateFormatted2 = targetDateFormatted[0] + "-"  +  targetDateFormatted[1] + "-" +  targetDateFormatted[2] 
+  console.log(targetDateFormatted2)
+    // today.substring(5, 7) +
+    // "-" +
+    // today.substring(8, 10) +
+    // "-" +
+    // today.substring(0, 4);
+    
   // 67;
+
+
   const filteredShifts =
-    shifts && Array.isArray(shifts) ? shifts.filter((shift) => shift.date === targetDateFormatted) : [];
+    shifts && Array.isArray(shifts)
+      ? shifts.filter((shift) => shift.date === targetDateFormatted2)
+      : [];
+
 
   // const pickImage = async () => {
   //   let result = await ImagePicker.launchImageLibraryAsync({
@@ -197,18 +233,18 @@ const Waiting_Driver_Screen = () => {
         const uploadedUrl = await uploadFile(result.assets[0] as any);
         setImages(uploadedUrl);
       } catch (error) {
-        console.error('File upload failed:', error);
+        console.error("File upload failed:", error);
       }
     } else {
-      console.log('Image capture was canceled.');
+      console.log("Image capture was canceled.");
     }
   };
 
   useEffect(() => {
     const requestCameraPermission = async () => {
       const { status } = await ImagePicker.requestCameraPermissionsAsync();
-      if (status !== 'granted') {
-        console.log('Permission to access camera was denied');
+      if (status !== "granted") {
+        console.log("Permission to access camera was denied");
       }
     };
 
@@ -217,13 +253,19 @@ const Waiting_Driver_Screen = () => {
 
   const renderRoute = () => {
     if (!user) return null;
-    if (user.role === 'user') {
+    if (user.role === "user") {
       return (
         <>
           {initialRegion && (
             <View style={styles.containerMap}>
               <MapView
-                style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}
+                style={{
+                  position: "absolute",
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                }}
                 initialRegion={initialRegion}
               >
                 {currentLocation && (
@@ -232,7 +274,7 @@ const Waiting_Driver_Screen = () => {
                       latitude: currentLocation.latitude,
                       longitude: currentLocation.longitude,
                     }}
-                    title='Your Location'
+                    title="Your Location"
                   />
                 )}
               </MapView>
@@ -241,7 +283,12 @@ const Waiting_Driver_Screen = () => {
           {filteredShifts.length > 0 && (
             <TouchableOpacity
               onPress={pickImage}
-              style={{ padding: 13, gap: 3, flexDirection: 'row', alignItems: 'center' }}
+              style={{
+                padding: 13,
+                gap: 3,
+                flexDirection: "row",
+                alignItems: "center",
+              }}
             >
               {images ? (
                 <Image
@@ -251,21 +298,25 @@ const Waiting_Driver_Screen = () => {
                   style={{ width: 50, height: 50, marginRight: 10 }}
                 />
               ) : (
-                <FolderIcon color='#000 ' />
+                <FolderIcon color="#000 " />
               )}
               <Text>Upload Image for attendance</Text>
             </TouchableOpacity>
           )}
           {filteredShifts.length === 0 ? (
-            <Text style={{ padding: 10, fontWeight: '700' }}>No Shift Found</Text>
+            <Text style={{ padding: 10, fontWeight: "700" }}>
+              No Shift Found
+            </Text>
           ) : (
             <View style={styles.timeContainer}>
               <View style={styles.timeBox}>
                 <Text style={styles.label}>Time-in: </Text>
                 <Text style={styles.time}>
-                  {data?.timeIn ? convertTo12HourFormat(data.timeIn) : 'Not clocked in yet'}
+                  {data?.timeIn
+                    ? convertTo12HourFormat(data.timeIn)
+                    : "Not clocked in yet"}
                 </Text>
-                {attendanceStatus !== 'present' && (
+                {attendanceStatus !== "present" && (
                   <TouchableOpacity
                     style={styles.button}
                     onPress={handleTimeIn}
@@ -277,9 +328,11 @@ const Waiting_Driver_Screen = () => {
               <View style={styles.timeBox}>
                 <Text style={styles.label}>Time-out:</Text>
                 <Text style={styles.time}>
-                  {data?.timeOut ? convertTo12HourFormat(data.timeOut) : 'Not clocked out yet'}
+                  {data?.timeOut
+                    ? convertTo12HourFormat(data.timeOut)
+                    : "Not clocked out yet"}
                 </Text>
-                {attendanceStatus === 'present' && data?.timeOut === '' ? (
+                {attendanceStatus === "present" && data?.timeOut === "" ? (
                   <TouchableOpacity
                     style={styles.button}
                     onPress={handleTimeOut}
@@ -294,15 +347,15 @@ const Waiting_Driver_Screen = () => {
       );
     }
 
-    if (user.role === 'hr') {
+    if (user.role === "hr") {
       return <HomeHr />;
     }
-    if (user.role === 'act') {
+    if (user.role === "act") {
       return <HomeHr />;
     }
   };
 
-  console.log(user.role)
+  console.log(user.role);
   return (
     <View style={styles.container}>
       <AppSidebar />
@@ -318,62 +371,62 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingVertical: 18,
-    width: '100%',
-    alignContent: 'flex-start',
+    width: "100%",
+    alignContent: "flex-start",
   },
   header: {
     padding: 16,
-    backgroundColor: '#f8f8f8',
-    alignItems: 'center',
-    justifyContent: 'center',
+    backgroundColor: "#f8f8f8",
+    alignItems: "center",
+    justifyContent: "center",
     marginTop: 80,
   },
   dateText: {
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   containerMap: {
-    width: '100%',
+    width: "100%",
 
-    height: '50%',
-    position: 'relative',
+    height: "50%",
+    position: "relative",
   },
   timeContainer: {
     flexGrow: 1,
-    display: 'flex',
-    justifyContent: 'space-around',
-    alignItems: 'center',
-    flexDirection: 'row',
+    display: "flex",
+    justifyContent: "space-around",
+    alignItems: "center",
+    flexDirection: "row",
     paddingHorizontal: 20,
     paddingVertical: 10,
   },
   timeBox: {
-    display: 'flex',
+    display: "flex",
     gap: 3,
   },
   label: {
-    fontWeight: '800',
+    fontWeight: "800",
   },
   time: {
-    color: 'green',
+    color: "green",
   },
   button: {
-    backgroundColor: '#0055ff',
+    backgroundColor: "#0055ff",
     paddingVertical: 10,
     paddingHorizontal: 30,
     borderRadius: 50,
     marginTop: 20,
   },
   button2: {
-    backgroundColor: '#f0f0f0',
+    backgroundColor: "#f0f0f0",
     paddingVertical: 10,
     paddingHorizontal: 30,
     borderRadius: 50,
     marginTop: 20,
   },
   buttonText: {
-    color: 'white',
-    fontWeight: 'bold',
+    color: "white",
+    fontWeight: "bold",
   },
 });
 

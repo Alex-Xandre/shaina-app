@@ -38,6 +38,7 @@ const AppSidebar: React.FC = () => {
       { title: 'Employees', url: 'employee/index', icon: <UserIcon color='#fff' /> },
       { title: 'Attendance', url: 'attendance/index', icon: <DocumentTextIcon color='#fff' /> },
       { title: 'Leaves', url: 'leave/index', icon: <FolderIcon color='#fff' /> },
+      { title: 'Payroll', url: 'payroll/index', icon: <BanknotesIcon color='#fff' /> },
       { title: 'Shift/Tasks', url: 'shift/index', icon: <FolderIcon color='#fff' /> },
     ],
     []
@@ -137,7 +138,7 @@ const styles = StyleSheet.create({
     flex: 1,
     width: '100%',
     position: 'absolute',
-    top: 40,
+  
     zIndex: 1001,
   },
   appBar: {
