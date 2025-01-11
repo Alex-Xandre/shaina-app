@@ -180,26 +180,29 @@ const Waiting_Driver_Screen = () => {
   };
 
   const today = new Date().toLocaleDateString().split("T")[0];
-  console.log(today)
-  const targetDateFormatted = today.split("/")
-  console.log(targetDateFormatted)
+  console.log(today);
+  const targetDateFormatted = today.split("/");
+  console.log(targetDateFormatted);
 
-  const targetDateFormatted2 = targetDateFormatted[0] + "-"  +  targetDateFormatted[1] + "-" +  targetDateFormatted[2] 
-  console.log(targetDateFormatted2)
-    // today.substring(5, 7) +
-    // "-" +
-    // today.substring(8, 10) +
-    // "-" +
-    // today.substring(0, 4);
-    
+  const targetDateFormatted2 =
+    targetDateFormatted[0] +
+    "-" +
+    targetDateFormatted[1] +
+    "-" +
+    targetDateFormatted[2];
+  console.log(targetDateFormatted2);
+  // today.substring(5, 7) +
+  // "-" +
+  // today.substring(8, 10) +
+  // "-" +
+  // today.substring(0, 4);
+
   // 67;
-
 
   const filteredShifts =
     shifts && Array.isArray(shifts)
       ? shifts.filter((shift) => shift.date === targetDateFormatted2)
       : [];
-
 
   // const pickImage = async () => {
   //   let result = await ImagePicker.launchImageLibraryAsync({
@@ -355,7 +358,6 @@ const Waiting_Driver_Screen = () => {
     }
   };
 
-  console.log(user.role);
   return (
     <View style={styles.container}>
       <AppSidebar />
@@ -371,15 +373,15 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingVertical: 18,
+    paddingTop:0, 
+    backgroundColor:"white",
     width: "100%",
+   
     alignContent: "flex-start",
   },
   header: {
     padding: 16,
-    backgroundColor: "#f8f8f8",
-    alignItems: "center",
-    justifyContent: "center",
-    marginTop: 80,
+   marginTop: 80,
   },
   dateText: {
     fontSize: 18,

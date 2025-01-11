@@ -6,6 +6,13 @@ import { fetchAttendance, fetchLeaves, fetchPay, fetchShifts, fetchUsers } from 
 import { getAttendance } from '@/api/attendance.api';
 import { getAllUser } from '@/api/get.info.api';
 import { getLeave } from '@/api/leave.api';
+import { 
+  BanknotesIcon, 
+  UserIcon, 
+  DocumentTextIcon, 
+  FolderIcon, 
+  Bars2Icon 
+} from 'react-native-heroicons/outline'; // Importing the required icons
 
 const HomeHR = () => {
   const { attendance, leave, shifts, allUser, dispatch, salary } = useAuth();
@@ -107,32 +114,51 @@ const HomeHR = () => {
 
   return (
     <ScrollView style={styles.container}>
-      {/* Unconfirmed Leaves Box */}
-      <View style={[styles.card, { borderLeftColor: '#FF6384' }]}>
-        <Text style={styles.cardValue}>{currentUnconfirmedLeaves}</Text>
-        <View style={styles.cardDetails}>
-          <Text style={styles.cardTitle}>Unconfirmed Leaves</Text>
-          {/* <Text style={leavesChange >= 0 ? styles.changePositive : styles.changeNegative}>
-            {leavesChange.toFixed(2)}%
-          </Text> */}
+      <View style={styles.row}>
+        {/* Unconfirmed Leaves Box */}
+        <View style={[styles.card, { borderLeftColor: '#FF6384' }]}>
+          <View style={styles.cardContent}>
+            <DocumentTextIcon size={24} color="#FF6384" />
+            <Text style={styles.cardValue}>{currentUnconfirmedLeaves}</Text>
+          </View>
+          <View style={styles.cardDetails}>
+            <Text style={styles.cardTitle}>Unconfirmed Leaves</Text>
+          </View>
+        </View>
+
+        {/* Today's Shifts Box */}
+        <View style={[styles.card, { borderLeftColor: '#36A2EB' }]}>
+          <View style={styles.cardContent}>
+            <Bars2Icon size={24} color="#36A2EB" />
+            <Text style={styles.cardValue}>{todayShiftsCount}</Text>
+          </View>
+          <View style={styles.cardDetails}>
+            <Text style={styles.cardTitle}>Today's Shifts</Text>
+          </View>
         </View>
       </View>
 
-      {/* Today's Shifts Box */}
-      <View style={[styles.card, { borderLeftColor: '#36A2EB' }]}>
-        <Text style={styles.cardValue}>{todayShiftsCount}</Text>
-        <View style={styles.cardDetails}>
-          <Text style={styles.cardTitle}>Today's Shifts</Text>
-          {/* <Text style={styles.changePositive}>{leavesChange.toFixed(2)}%</Text> */}
+      <View style={styles.row}>
+        {/* Total Employees Box */}
+        <View style={[styles.card, { borderLeftColor: '#FFCE56' }]}>
+          <View style={styles.cardContent}>
+            <UserIcon size={24} color="#FFCE56" />
+            <Text style={styles.cardValue}>{allUser.filter((x: any) => x.status !== false).length}</Text>
+          </View>
+          <View style={styles.cardDetails}>
+            <Text style={styles.cardTitle}>Total Employees</Text>
+          </View>
         </View>
-      </View>
 
-      {/* Total Employees Box */}
-      <View style={[styles.card, { borderLeftColor: '#FFCE56' }]}>
-        <Text style={styles.cardValue}>{allUser.filter((x:any) => x.status !== false).length}</Text>
-        <View style={styles.cardDetails}>
-          <Text style={styles.cardTitle}>Total Employees</Text>
-          {/* <Text style={styles.changePositive}>{leavesChange.toFixed(2)}%</Text> */}
+        {/* Total Salary Box */}
+        <View style={[styles.card, { borderLeftColor: '#4CAF50' }]}>
+          <View style={styles.cardContent}>
+            <BanknotesIcon size={24} color="#4CAF50" />
+            <Text style={styles.cardValue}>{salary.reduce((sum, record) => sum + record.total, 0)}</Text>
+          </View>
+          <View style={styles.cardDetails}>
+            <Text style={styles.cardTitle}>Total Salaries Paid</Text>
+          </View>
         </View>
       </View>
 
@@ -145,40 +171,47 @@ const HomeHR = () => {
           <Text>Undefined: {genderCount.undefined}</Text>
         </View>
       </View>
-
-      {/* Total Salary Box */}
-      <View style={[styles.card, { borderLeftColor: '#4CAF50' }]}>
-        <Text style={styles.cardTitle}>Total Salaries Paid</Text>
-        <Text>{salary.reduce((sum, record) => sum + record.total, 0)}</Text>
-      </View>
     </ScrollView>
   );
 };
+// Other unchanged parts of the code...
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 15,
-    backgroundColor: '#f5f5f5',
+    paddingTop: 0,
+    backgroundColor: 'white',
+  },
+  row: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 20,
   },
   card: {
-    backgroundColor: '#fff',
-    marginBottom: 20,
+    backgroundColor: '#f5f5f5',
+    width: '48%', // Ensures two cards fit per row
     padding: 20,
     borderRadius: 12,
     shadowColor: '#000',
     shadowOpacity: 0.1,
     shadowOffset: { width: 0, height: 2 },
     shadowRadius: 6,
-    flexDirection: 'row',
+    flexDirection: 'column',
     justifyContent: 'space-between',
-    alignItems: 'center',
+    alignItems: 'flex-start',
     borderLeftWidth: 8, // Adds the left border with color
+  },
+  cardContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 10,
   },
   cardValue: {
     fontSize: 30,
     fontWeight: 'bold',
     color: '#333',
+    marginLeft: 10,
   },
   cardDetails: {
     flexDirection: 'column',
@@ -197,7 +230,6 @@ const styles = StyleSheet.create({
   },
   chartWrapper: {
     marginTop: 20,
-    alignItems: 'center',
     backgroundColor: '#fff',
     padding: 20,
     borderRadius: 12,
@@ -213,7 +245,7 @@ const styles = StyleSheet.create({
   },
   genderDetails: {
     marginTop: 15,
-    alignItems: 'center',
+    alignItems: 'flex-start', // Align text to the left
   },
 });
 

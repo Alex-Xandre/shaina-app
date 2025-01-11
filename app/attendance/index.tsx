@@ -1,75 +1,86 @@
-import { Container } from '@/components/helpers/Container';
-import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
-import React, { useEffect, useState } from 'react';
-import AppSidebar from '@/components/Sidebar';
-import { useAuth } from '@/state/AuthContext';
-import Dropdown from '@/components/Dropdown';
-import Button from '@/components/Button';
-import DateTimePicker from '@react-native-community/datetimepicker';
-import Table from '@/components/Table';
+import { Container } from "@/components/helpers/Container";
+import {
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import React, { useEffect, useState } from "react";
+import AppSidebar from "@/components/Sidebar";
+import { useAuth } from "@/state/AuthContext";
+import Dropdown from "@/components/Dropdown";
+import Button from "@/components/Button";
+import DateTimePicker from "@react-native-community/datetimepicker";
+import Table from "@/components/Table";
 
-import { ScrollView } from 'react-native-gesture-handler';
-import { getAttendance, registerAttendance } from '@/api/attendance.api';
-import { fetchAttendance, fetchPay, fetchShifts, fetchUsers } from '@/state/AuthReducer';
-import { getPay, getTasks } from '@/api/tasks.api';
-import { getAllUser } from '@/api/get.info.api';
-import Card from './Card';
-import SalaryCard from './SalaryCard';
-import PayCard from './PayCard';
-import { useNavigation } from 'expo-router';
-import { AttendanceType } from '@/types';
+import { ScrollView } from "react-native-gesture-handler";
+import { getAttendance, registerAttendance } from "@/api/attendance.api";
+import {
+  fetchAttendance,
+  fetchPay,
+  fetchShifts,
+  fetchUsers,
+} from "@/state/AuthReducer";
+import { getPay, getTasks } from "@/api/tasks.api";
+import { getAllUser } from "@/api/get.info.api";
+import Card from "./Card";
+import SalaryCard from "./SalaryCard";
+import PayCard from "./PayCard";
+import { useNavigation } from "expo-router";
+import { AttendanceType } from "@/types";
 const index = () => {
   const headers = [
     {
-      header: 'User ID',
-      accessor: 'userId',
+      header: "User ID",
+      accessor: "userId",
     },
     {
-      header: 'Name',
-      accessor: 'name',
+      header: "Name",
+      accessor: "name",
     },
     {
-      header: 'Date',
-      accessor: 'date',
+      header: "Date",
+      accessor: "date",
     },
     {
-      header: 'Time In',
-      accessor: 'timeIn',
+      header: "Time In",
+      accessor: "timeIn",
     },
     {
-      header: 'Time Out',
-      accessor: 'timeOut',
+      header: "Time Out",
+      accessor: "timeOut",
     },
   ];
 
   const salaryHeader = [
     {
-      header: 'User ID',
-      accessor: 'userId',
+      header: "User ID",
+      accessor: "userId",
     },
     {
-      header: 'Name',
-      accessor: 'name',
+      header: "Name",
+      accessor: "name",
     },
     {
-      header: 'Date',
-      accessor: 'date',
+      header: "Date",
+      accessor: "date",
     },
     // {
     //   header: 'Deductions',
     //   accessor: 'deduction',
     // },
     {
-      header: 'Total',
-      accessor: 'total',
+      header: "Total",
+      accessor: "total",
     },
   ];
 
   const [isAttendance, setIsAttendance] = useState(false);
-  const [startDate, setStartDate] = useState('');
-  const [endDate, setEndDate] = useState('');
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
   const { allUser, attendance, shifts, dispatch } = useAuth();
-  const [status, setStatus] = useState('all');
+  const [status, setStatus] = useState("all");
   const [showStartDatePicker, setShowStartDatePicker] = useState(false);
   const [showEndDatePicker, setShowEndDatePicker] = useState(false);
   const { user, salary } = useAuth();
@@ -109,20 +120,25 @@ const index = () => {
 
   useEffect(() => {
     const today = new Date();
-    const startDate = new Date(today.getFullYear(), today.getMonth(), 1).toISOString().split('T')[0];
-    const endDate = today.toISOString().split('T')[0];
+    const startDate = new Date(today.getFullYear(), today.getMonth(), 1)
+      .toISOString()
+      .split("T")[0];
+    const endDate = today.toISOString().split("T")[0];
 
     setStartDate(startDate);
     setEndDate(endDate);
   }, []);
 
-  const generateDateRange = (start: string | number | Date, end: string | number | Date) => {
+  const generateDateRange = (
+    start: string | number | Date,
+    end: string | number | Date
+  ) => {
     const startDate = new Date(start);
     const endDate = new Date(end);
     const dateArray = [];
 
     for (let dt = startDate; dt <= endDate; dt.setDate(dt.getDate() + 1)) {
-      dateArray.push(new Date(dt).toISOString().split('T')[0]);
+      dateArray.push(new Date(dt).toISOString().split("T")[0]);
     }
     return dateArray;
   };
@@ -131,13 +147,13 @@ const index = () => {
     if (!timeString) {
       return;
     }
-    const [hours, minutes] = timeString.split(':').map(Number);
-    const period = hours >= 12 ? 'PM' : 'AM';
+    const [hours, minutes] = timeString.split(":").map(Number);
+    const period = hours >= 12 ? "PM" : "AM";
     const adjustedHours = hours % 12 || 12;
 
-    return `${adjustedHours}:${minutes.toString().padStart(2, '0')} ${period}`;
+    return `${adjustedHours}:${minutes.toString().padStart(2, "0")} ${period}`;
   };
-  const [searchId, setSearchId] = useState('');
+  const [searchId, setSearchId] = useState("");
 
   const filteredData = () => {
     if (startDate && endDate) {
@@ -151,16 +167,21 @@ const index = () => {
         }
 
         return dateRange.map((date) => {
-          const formattedDate = new Date(date).toISOString().split('T')[0];
+          const formattedDate = new Date(date).toISOString().split("T")[0];
 
-          const [year, month, day] = formattedDate.split('-');
+          const [year, month, day] = formattedDate.split("-");
           const formattedDate2 = `${month}-${day}-${year}`;
 
-          const shiftRecord = shifts.find((record) => record.userId === user._id && record.date === formattedDate2);
+          const shiftRecord = shifts.find(
+            (record) =>
+              record.userId === user._id && record.date === formattedDate2
+          );
           // console.log(shifts);
           const attendanceRecord = attendance.find(
             (record) =>
-              record.userId === user._id && new Date(record.date).toISOString().split('T')[0] === formattedDate
+              record.userId === user._id &&
+              new Date(record.date).toISOString().split("T")[0] ===
+                formattedDate
           );
 
           // if (attendanceRecord && !shiftRecord) {
@@ -178,18 +199,21 @@ const index = () => {
             name: `${user.firstName} ${user.lastName}`,
             date: formattedDate,
             timeIn: attendanceRecord
-              ? attendanceRecord.timeIn === ''
-                ? 'NOT CLOCKED IN'
+              ? attendanceRecord.timeIn === ""
+                ? "NOT CLOCKED IN"
                 : convertTo12HourFormat(attendanceRecord.timeIn)
-              : 'NOT CLOCKED IN',
+              : "NOT CLOCKED IN",
             timeOut: attendanceRecord
-              ? attendanceRecord.timeIn === ''
-                ? 'NOT CLOCKED IN'
-                : attendanceRecord.timeOut === ''
-                ? 'ON DUTY'
+              ? attendanceRecord.timeIn === ""
+                ? "NOT CLOCKED IN"
+                : attendanceRecord.timeOut === ""
+                ? "ON DUTY"
                 : convertTo12HourFormat(attendanceRecord.timeOut)
-              : 'N/A',
-            status: attendanceRecord && attendanceRecord.timeIn ? 'present' : attendanceRecord?.status,
+              : "N/A",
+            status:
+              attendanceRecord && attendanceRecord.timeIn
+                ? "present"
+                : attendanceRecord?.status,
           };
         });
       });
@@ -198,13 +222,17 @@ const index = () => {
   };
   const nav: any = useNavigation();
 
-  const attendanceData = attendance.filter((x) => (status === 'all' ? x : x.status === status));
+  const attendanceData = attendance.filter((x) =>
+    status === "all" ? x : x.status === status
+  );
   return (
     <View style={styles.container}>
       <AppSidebar />
       <View style={styles.content}>
         <View style={styles.header}>
-          <Text style={styles.title}>List of {!isAttendance ? 'Attendance' : 'Salaries'}</Text>
+          <Text style={styles.title}>
+            List of {!isAttendance ? "Attendance" : "Salaries"}
+          </Text>
           {/* {user.role !== 'user' && (
             <Button
               text='Attendance'
@@ -215,11 +243,11 @@ const index = () => {
 
         <View
           style={{
-            alignItems: 'center',
-            display: 'flex',
-            width: '100%',
+            alignItems: "center",
+            display: "flex",
+            width: "100%",
             paddingRight: 10,
-            justifyContent: 'space-between',
+            justifyContent: "space-between",
             zIndex: 1000,
           }}
         >
@@ -227,25 +255,26 @@ const index = () => {
             <View style={styles.dropdownContainer}>
               <Dropdown
                 value={status}
-                options={['All', 'Present', 'Absent', 'Late', 'Halfday', 'Leave'].map((x) => ({
+                options={[
+                  "All",
+                  "Present",
+                  "Absent",
+                  "Late",
+                  "Halfday",
+                  "Leave",
+                ].map((x) => ({
                   value: x.toLowerCase(),
                   label: x.toUpperCase(),
                 }))}
-                id='status-dropdown'
+                id="status-dropdown"
                 onChange={(e) => setStatus(e as string)}
               />
             </View>
-            <TouchableOpacity
-              onPress={() => setShowStartDatePicker(true)}
-              style={{ marginTop: 30 }}
-            >
+            <TouchableOpacity onPress={() => setShowStartDatePicker(true)}>
               <Text style={styles.dateText}>{startDate}</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity
-              onPress={() => setShowEndDatePicker(true)}
-              style={{ marginTop: 30 }}
-            >
+            <TouchableOpacity onPress={() => setShowEndDatePicker(true)}>
               <Text style={styles.dateText}>{endDate}</Text>
             </TouchableOpacity>
             {/* <TouchableOpacity style={styles.addButton}>
@@ -258,11 +287,13 @@ const index = () => {
         {showStartDatePicker && (
           <DateTimePicker
             value={new Date(startDate)}
-            mode='date'
-            display='default'
+            mode="date"
+            display="default"
             onChange={(event, date) => {
-              if (event.type === 'set') {
-                setStartDate((date && date.toISOString().split('T')[0]) || startDate);
+              if (event.type === "set") {
+                setStartDate(
+                  (date && date.toISOString().split("T")[0]) || startDate
+                );
               }
               setShowStartDatePicker(false);
             }}
@@ -271,11 +302,13 @@ const index = () => {
         {showEndDatePicker && (
           <DateTimePicker
             value={new Date(endDate)}
-            mode='date'
-            display='default'
+            mode="date"
+            display="default"
             onChange={(event, date) => {
-              if (event.type === 'set') {
-                setEndDate((date && date.toISOString().split('T')[0]) || endDate);
+              if (event.type === "set") {
+                setEndDate(
+                  (date && date.toISOString().split("T")[0]) || endDate
+                );
               }
               setShowEndDatePicker(false);
             }}
@@ -283,7 +316,7 @@ const index = () => {
         )}
 
         <View style={styles.tabContainer}>
-          <View style={{ flexDirection: 'row' }}>
+          <View style={{ flexDirection: "row" }}>
             <Text
               style={[styles.tab, !isAttendance && styles.activeTab]}
               onPress={() => setIsAttendance(false)}
@@ -300,7 +333,7 @@ const index = () => {
           </View>
         </View>
 
-        {user.role !== 'user' ? (
+        {user.role !== "user" ? (
           <Table
             itemsPerPage={12}
             handleBatch={
@@ -315,13 +348,18 @@ const index = () => {
             }
             // submitSelected={(e) => handleSubmit(e)}
             handleSearch={(e) => setSearchId(e)}
-            title={!isAttendance ? 'Attendance' : 'Salary'}
+            title={!isAttendance ? "Attendance" : "Salary"}
             isPay={isAttendance}
             data={
               !isAttendance
                 ? filteredData()
-                    .filter((record) => status === 'all' || (record && record.status === status))
-                    ?.filter((x) => x?.userId?.toLowerCase().includes(searchId?.toLowerCase()))
+                    .filter(
+                      (record) =>
+                        status === "all" || (record && record.status === status)
+                    )
+                    ?.filter((x) =>
+                      x?.userId?.toLowerCase().includes(searchId?.toLowerCase())
+                    )
                     ?.filter((x) => (isAttendance ? x !== null && x.status : x))
                 : (salary.map((x) => {
                     const user = allUser.find((y) => y._id === x.userId);
@@ -329,22 +367,22 @@ const index = () => {
                       date: new Date(x.date).toLocaleDateString(),
                       total: x.total,
                       userId: user?.userId,
-                      name: user?.firstName + ' ' + user?.lastName,
+                      name: user?.firstName + " " + user?.lastName,
                       salaryIsPaid: x.status,
                     };
                   }) as any)
             }
             columns={!isAttendance ? (headers as any) : salaryHeader}
             onEdit={(item: AttendanceType) => {
-              nav.navigate('attendance/new', { data: item._id });
+              nav.navigate("attendance/new", { data: item._id });
             }}
             onRemove={function (): void {
-              throw new Error('Function not implemented.');
+              throw new Error("Function not implemented.");
             }}
             onViewPayment={(data) => {
               function removeAmPm(time: string): string {
                 // Assuming time is in the format "hh:mm AM" or "hh:mm PM"
-                return time.replace(/ AM| PM/, '');
+                return time.replace(/ AM| PM/, "");
               }
 
               const tI = data.timeIn;
@@ -353,14 +391,20 @@ const index = () => {
                 const res = await registerAttendance({
                   ...data,
                   salaryIsPaid: true,
-                  timeIn: tI === 'N/A' || tI === 'NOT CLOCKED IN' ? '00:00' : removeAmPm(data.timeIn),
-                  timeOut: tO === 'N/A' || tO === 'NOT CLOCKED IN' ? '00:00' : removeAmPm(data.timeOut),
+                  timeIn:
+                    tI === "N/A" || tI === "NOT CLOCKED IN"
+                      ? "00:00"
+                      : removeAmPm(data.timeIn),
+                  timeOut:
+                    tO === "N/A" || tO === "NOT CLOCKED IN"
+                      ? "00:00"
+                      : removeAmPm(data.timeOut),
                   userId: allUser.find((x) => x.userId === data.userId)?._id,
                 });
 
                 if (res.success === false) return;
 
-                dispatch({ type: 'ADD_ATTENDANCE', payload: res });
+                dispatch({ type: "ADD_ATTENDANCE", payload: res });
               };
 
               if (data.salaryIsPaid) {
@@ -372,31 +416,23 @@ const index = () => {
           />
         ) : (
           <ScrollView
-            style={{ paddingRight: 10, flex: 1, backgroundColor: '#fff' }}
+            style={{ paddingRight: 10, flex: 1, backgroundColor: "#fff" }}
             showsVerticalScrollIndicator={false}
           >
-            {attendanceData.length === 0 && <Text style={{ marginTop: 10 }}>Attendance List Empty</Text>}
+            {attendanceData.length === 0 && (
+              <Text style={{ marginTop: 10 }}>Attendance List Empty</Text>
+            )}
 
             {!isAttendance &&
               attendanceData.map((x) => {
-                return (
-                  <Card
-                    key={x._id}
-                    data={x}
-                  />
-                );
+                return <Card key={x._id} data={x} />;
               })}
 
             {isAttendance &&
               salary
                 .filter((x) => x.userId === user._id)
                 .map((y) => {
-                  return (
-                    <PayCard
-                      key={y._id}
-                      data={y}
-                    />
-                  );
+                  return <PayCard key={y._id} data={y} />;
                 })}
           </ScrollView>
         )}
@@ -408,36 +444,36 @@ const index = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'white',
-    paddingVertical: 18,
-    width: '100%',
+    backgroundColor: "white",
+    paddingBottom: 18,
+    width: "100%",
   },
   content: {
-    height: '90%',
+    height: "90%",
     paddingLeft: 15,
     margin: 0,
     marginTop: 100,
-    position: 'relative',
+    position: "relative",
     paddingRight: 10,
   },
 
   tableContainer: {
     marginTop: 100,
     marginRight: 20,
-    backgroundColor: 'white',
+    backgroundColor: "white",
     borderRadius: 10,
   },
 
   dropdownContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    position: 'relative',
+    flexDirection: "row",
+    alignItems: "center",
+    position: "relative",
     zIndex: 1000,
     flex: 1,
   },
   dateInput: {
     borderWidth: 1,
-    borderColor: '#ccc',
+    borderColor: "#ccc",
     borderRadius: 8,
     padding: 10,
     marginHorizontal: 8,
@@ -448,61 +484,61 @@ const styles = StyleSheet.create({
   },
 
   tabContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
+    flexDirection: "row",
+    justifyContent: "center",
     marginTop: 20,
   },
   tab: {
     fontSize: 14,
-    fontWeight: '500',
+    fontWeight: "500",
     paddingVertical: 12,
     paddingHorizontal: 20,
-    cursor: 'pointer',
+    cursor: "pointer",
     borderBottomWidth: 2,
-    borderBottomColor: 'transparent',
+    borderBottomColor: "transparent",
     marginRight: 10,
-    color: '#888',
+    color: "#888",
   },
   activeTab: {
-    color: '#000',
-    borderBottomColor: '#007bff',
+    color: "#000",
+    borderBottomColor: "#007bff",
   },
   button: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#007bff',
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#007bff",
     paddingVertical: 8,
     paddingHorizontal: 12,
     paddingLeft: 30,
     borderRadius: 5,
   },
   buttonText: {
-    color: '#fff',
+    color: "#fff",
     marginRight: 8,
   },
   buttonIcon: {
-    color: '#fff',
+    color: "#fff",
   },
 
   header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     paddingRight: 10,
   },
   title: {
     fontSize: 16,
-    fontWeight: '700',
+    fontWeight: "700",
   },
   datePickerContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    position: 'relative',
+    flexDirection: "row",
+    alignItems: "center",
+    position: "relative",
 
     gap: 12,
   },
   dateText: {
-    backgroundColor: '#f0f0f0',
+    backgroundColor: "#f0f0f0",
     paddingHorizontal: 8,
     paddingVertical: 9,
     borderRadius: 5,

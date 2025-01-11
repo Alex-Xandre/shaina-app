@@ -107,8 +107,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: 'white',
-    paddingVertical: 18,
+    paddingBottom: 18,
     width: '100%',
+  
   },
   content: {
     height: '90%',

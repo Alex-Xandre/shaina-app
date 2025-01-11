@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, TextInput, FlatList, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, Modal, StyleSheet, FlatList, TextInput } from 'react-native';
 
 interface DropdownProps {
   label?: string;
@@ -8,9 +8,9 @@ interface DropdownProps {
   icon?: React.ReactNode;
   id?: string;
   value?: string | number;
-  isInputFilter?: boolean;
   onChange?: (value: string | number) => void;
   disabled?: boolean;
+  isInputFilter?: boolean;
 }
 
 const Dropdown: React.FC<DropdownProps> = ({
@@ -20,20 +20,36 @@ const Dropdown: React.FC<DropdownProps> = ({
   icon,
   id,
   value,
-  isInputFilter = false,
   onChange,
   disabled = false,
+  isInputFilter = false,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [selectedValue, setSelectedValue] = useState(value);
   const [filter, setFilter] = useState('');
 
-  const toggleDropdown = () => setIsOpen((prev) => !prev);
+  const toggleDropdown = () => {
+    if (!disabled) {
+      setIsOpen((prev) => !prev);
+    }
+  };
 
-  const filteredOptions = options.filter((option) => option.label.toLowerCase().includes(filter.toLowerCase()));
+  const handleSelect = (itemValue: string | number) => {
+    setSelectedValue(itemValue);
+    if (onChange) {
+      onChange(itemValue);
+    }
+    setIsOpen(false);
+  };
+
+  const filteredOptions = isInputFilter
+    ? options.filter((option) => option.label.toLowerCase().includes(filter.toLowerCase()))
+    : options;
 
   return (
     <View style={styles.container}>
       {label && <Text style={styles.label}>{label}</Text>}
+      
       <TouchableOpacity
         style={[styles.inputContainer, error ? styles.errorBorder : styles.normalBorder, disabled && styles.disabled]}
         onPress={toggleDropdown}
@@ -41,41 +57,48 @@ const Dropdown: React.FC<DropdownProps> = ({
       >
         <TextInput
           editable={false}
-          value={value ? options.find((option) => option.value === value)?.label : ''}
+          value={options.find((option) => option.value === selectedValue)?.label || ''}
           placeholder={label}
           style={styles.input}
         />
         {icon && <View style={styles.iconContainer}>{icon}</View>}
       </TouchableOpacity>
-      {isOpen && (
-        <View style={styles.dropdownContainer}>
-          {isInputFilter && (
-            <TextInput
-              placeholder='Search...'
-              style={styles.filterInput}
-              value={filter}
-              onChangeText={setFilter}
-            />
-          )}
-          <FlatList
-            data={isInputFilter ? filteredOptions : options}
-            keyExtractor={(item) => String(item.value)}
-            renderItem={({ item }) => (
-              <TouchableOpacity
-                style={styles.option}
-                onPress={() => {
-                  if (onChange) {
-                    onChange(item.value);
-                  }
-                  setIsOpen(false);
-                }}
-              >
-                <Text style={{ paddingVertical: 4 }}>{item.label}</Text>
-              </TouchableOpacity>
+      
+      {/* Modal for dropdown */}
+      <Modal visible={isOpen} transparent={true} animationType="fade" onRequestClose={() => setIsOpen(false)}>
+        <View style={styles.modalBackground}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>{label}</Text>
+            
+            {/* Search bar for filtering options */}
+            {isInputFilter && (
+              <TextInput
+                style={styles.filterInput}
+                placeholder="Search..."
+                value={filter}
+                onChangeText={setFilter}
+              />
             )}
-          />
+
+            <FlatList
+              data={filteredOptions}
+              keyExtractor={(item) => String(item.value)}
+              renderItem={({ item }) => (
+                <TouchableOpacity
+                  style={styles.option}
+                  onPress={() => handleSelect(item.value)}
+                >
+                  <Text style={styles.optionText}>{item.label}</Text>
+                </TouchableOpacity>
+              )}
+            />
+            <TouchableOpacity style={styles.closeButton} onPress={() => setIsOpen(false)}>
+              <Text style={styles.closeButtonText}>Close</Text>
+            </TouchableOpacity>
+          </View>
         </View>
-      )}
+      </Modal>
+
       {error && <Text style={styles.errorText}>{error}</Text>}
     </View>
   );
@@ -83,34 +106,29 @@ const Dropdown: React.FC<DropdownProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    position: 'absolute',
-    top: 0,
+    position: 'relative',
     width: '100%',
   },
   label: {
     marginBottom: 8,
     fontSize: 14,
     fontWeight: '500',
-    zIndex: 0,
   },
   inputContainer: {
-    paddingVertical: 0,
-    fontSize: 12,
+    paddingVertical: 12,
     paddingHorizontal: 10,
     borderRadius: 4,
     backgroundColor: '#fff',
     flexDirection: 'row',
     alignItems: 'center',
-    zIndex: 0,
   },
   normalBorder: {
-    backgroundColor: '#f0f0f0',
-    zIndex: 0,
+    borderWidth: 1,
+    borderColor: '#ccc',
   },
   errorBorder: {
     borderWidth: 1,
     borderColor: 'red',
-    zIndex: 0,
   },
   disabled: {
     backgroundColor: '#f0f0f0',
@@ -118,26 +136,29 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
     fontSize: 14,
-    zIndex: 0,
-    paddingVertical: 5,
   },
   iconContainer: {
     marginLeft: 10,
   },
-  dropdownContainer: {
-    position: 'absolute',
-    top: '100%',
-    left: 0,
-    right: 0,
-    backgroundColor: 'white',
-    borderRadius: 4,
-    elevation: 5,
-    zIndex: 99,
-  },
-  dropdownContainerActive: {
-    top:0 !
-  },
 
+  modalBackground: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalContent: {
+    width: '80%',
+    backgroundColor: '#fff',
+    borderRadius: 8,
+    padding: 16,
+    elevation: 10,
+  },
+  modalTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    marginBottom: 10,
+  },
   filterInput: {
     marginBottom: 10,
     paddingVertical: 8,
@@ -145,15 +166,28 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#ccc',
     borderRadius: 8,
-    marginTop:-40,
-    zIndex:100,
-    backgroundColor:"#fff"
+    backgroundColor: '#fff',
   },
   option: {
-    paddingVertical: 3,
-    paddingHorizontal: 5,
+    paddingVertical: 10,
+    paddingHorizontal: 15,
     borderBottomWidth: 1,
-    borderBottomColor: '#ccc',
+    borderBottomColor: '#eee',
+  },
+  optionText: {
+    fontSize: 14,
+  },
+  closeButton: {
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    backgroundColor: '#007BFF',
+    borderRadius: 4,
+    marginTop: 10,
+  },
+  closeButtonText: {
+    color: '#fff',
+    textAlign: 'center',
+    fontSize: 14,
   },
   errorText: {
     marginTop: 4,

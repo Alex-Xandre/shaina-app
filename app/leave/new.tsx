@@ -162,13 +162,12 @@ const NewLeave = () => {
               <View style={{ flexDirection: 'row', marginTop: 42 }}>
                 <TouchableOpacity
                   onPress={() => setShowStartDatePicker(true)}
-                  style={{ marginTop: 52 }}
                 >
                   <Text style={styles.dateText}>{startDate}</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                   onPress={() => setShowEndDatePicker(true)}
-                  style={{ marginTop: 52, marginLeft: 10 }}
+                  style={{ marginLeft: 10 }}
                 >
                   <Text style={styles.dateText}>{endDate}</Text>
                 </TouchableOpacity>
@@ -190,7 +189,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: 'white',
-    paddingVertical: 18,
+    paddingBottom: 18,
     width: '100%',
   },
   content: {

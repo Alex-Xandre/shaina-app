@@ -213,6 +213,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     paddingVertical: 18,
     width: '100%',
+
   },
   content: {
     height: '90%',

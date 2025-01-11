@@ -36,7 +36,7 @@ const Table = <T,>({
     container: {
       flex: 1,
       padding: 5,
-      marginTop: title === 'Employees' ? 60 : 10,
+      marginTop: title === 'Employees' ? 30 : 10,
     },
     nav: {
       flexDirection: 'row',
@@ -63,7 +63,7 @@ const Table = <T,>({
       borderRadius: 8,
       padding: 15,
       marginBottom: 10,
-      borderWidth: 1,
+      borderBottomWidth: 1,
       borderColor: '#ccc',
     },
     cardHeader: {
